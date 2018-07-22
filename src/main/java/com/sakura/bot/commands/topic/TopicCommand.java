@@ -8,19 +8,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sakura.bot.Roles;
-import com.sakura.bot.commands.say.SayCommand;
-import com.sakura.bot.utils.ArgumentChecker;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
+import com.sakura.bot.Roles;
+import com.sakura.bot.utils.ArgumentChecker;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.TextChannel;
 
 public class TopicCommand extends Command {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SayCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TopicCommand.class);
     private static final Pattern SYMBOL_PATTERN = Pattern.compile("[^\\w ]");
 
     public TopicCommand() {
@@ -39,21 +38,22 @@ public class TopicCommand extends Command {
     }
 
     private void addNewChannel(CommandEvent event) {
-        String topic = event.getArgs();
+        String topicName = event.getArgs();
         try {
-            ArgumentChecker.checkIfArgsAreNotEmpty(topic);
-            validateInput(topic);
-            Channel customChannel = createCustomChannel(event, topic);
-            findAndAddCustomChannelToContainer(customChannel, topic);
+            ArgumentChecker.checkIfArgsAreNotEmpty(topicName);
+            validateTopicName(topicName);
+            Channel customChannel = createCustomChannel(event, topicName);
+            TextChannel customTextChannel = sendTopicHasBeenSetMsg(customChannel, topicName);
+            startInactivityTask(customTextChannel);
+
         } catch (IllegalArgumentException | IllegalStateException e) {
             event.replyWarning(e.getMessage());
-            LOGGER.error(e.getMessage());
         }
     }
 
-    private void validateInput(String message) {
-        if (StringUtils.isNotEmpty(message) && message.length() >= 2 && message.length() <= 100) {
-            Matcher matcher = SYMBOL_PATTERN.matcher(message);
+    private void validateTopicName(String topic) {
+        if (StringUtils.isNotEmpty(topic) && topic.length() >= 2 && topic.length() <= 100) {
+            Matcher matcher = SYMBOL_PATTERN.matcher(topic);
             if (matcher.find()) {
                 throw new IllegalArgumentException("Invalid input, topic can not contain special character");
             }
@@ -63,25 +63,53 @@ public class TopicCommand extends Command {
     }
 
     private Channel createCustomChannel(CommandEvent event, String topic) {
-        List<net.dv8tion.jda.core.entities.Category> customCategory = FinderUtil.findCategories("CUSTOM", event.getGuild());
-        Channel channel = event.getGuild().getController().createTextChannel(topic)
-            .setTopic(topic)
-            .setNSFW(true)
-            .setParent(customCategory.get(0))
-            .complete();
-        event.reply(String.format("Succesfully created new channel: **%s**", topic));
+        // TODO remove hardcoded CUSTOM category
+        List<net.dv8tion.jda.core.entities.Category> customCategories = FinderUtil.findCategories("CUSTOM", event.getGuild());
+        Channel channel;
+        if (!customCategories.isEmpty()) {
+            net.dv8tion.jda.core.entities.Category customCategory = customCategories.get(0);
+            validateChannelName(customCategory, topic);
+            channel = event.getGuild().getController().createTextChannel(topic)
+                .setTopic(topic)
+                .setNSFW(true)
+                .setParent(customCategory)
+                .complete();
+            event.reply(String.format("Succesfully created new channel: **%s**", topic));
+        } else {
+            String errorMsg = "Custom category was not found!";
+            LOGGER.error(errorMsg);
+            throw new IllegalStateException(errorMsg);
+        }
+
         return channel;
     }
 
-    private void findAndAddCustomChannelToContainer(Channel customChannel, String topic) {
+    private void validateChannelName(net.dv8tion.jda.core.entities.Category customCategory, String topic) {
+        if (customCategory.getTextChannels().stream().anyMatch(chan -> chan.getName().equals(topic))) {
+            throw new IllegalArgumentException(String.format(
+                "This channel already exists! **%s**", topic));
+        }
+    }
+
+    private TextChannel sendTopicHasBeenSetMsg(Channel customChannel, String topic) {
         TextChannel customTextChannel = customChannel.getGuild().getTextChannels().stream()
             .filter(channel -> channel.getId().equals(customChannel.getId()))
-            .findFirst().orElseThrow(() -> new IllegalArgumentException(String.format(
-                "Something went really wrong, could not store created %s channel", topic)));
-        CustomChannelContainer.addChannel(customTextChannel);
+            .findFirst().orElseThrow(() -> {
+                String errorMsg = String.format(
+                    "Something went really wrong, could not store created %s channel", topic);
+                LOGGER.error(errorMsg);
+                return new IllegalStateException(errorMsg);
+            });
         customTextChannel.sendMessage("The topic has now been set to: " +
             String.format("**%s**", topic))
             .queue();
+        return customTextChannel;
     }
 
+    private void startInactivityTask(TextChannel customTextChannel) {
+        InactiveChannelTaskListSingleton.getInstance()
+            .addTask(new InactiveChannelCheckTask(customTextChannel));
+        InactiveChannelTaskListSingleton.getInstance()
+            .scheduleTasks();
+    }
 }

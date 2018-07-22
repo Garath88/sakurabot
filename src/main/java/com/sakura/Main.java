@@ -7,7 +7,6 @@ import com.sakura.bot.configuration.CommandList;
 import com.sakura.bot.configuration.Config;
 
 public class Main {
-
     public static void main(String[] args) throws IOException {
         Config config = new Config();
         BotImpl bot = new BotImpl(config);

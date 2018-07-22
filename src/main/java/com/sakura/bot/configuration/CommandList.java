@@ -3,15 +3,15 @@ package com.sakura.bot.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.examples.command.PingCommand;
+import com.jagrosh.jdautilities.examples.command.ShutdownCommand;
 import com.sakura.bot.commands.bump.BumpAddCommand;
 import com.sakura.bot.commands.bump.BumpCommand;
 import com.sakura.bot.commands.say.SayAddCommand;
 import com.sakura.bot.commands.say.SayCommand;
 import com.sakura.bot.commands.say.SayDelCommand;
 import com.sakura.bot.commands.topic.TopicCommand;
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.examples.command.PingCommand;
-import com.jagrosh.jdautilities.examples.command.ShutdownCommand;
 
 public class CommandList {
 

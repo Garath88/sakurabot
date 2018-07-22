@@ -1,36 +1,20 @@
 package com.sakura.bot.commands.bump;
 
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.sakura.bot.tasks.Task;
 
-public final class BumpTask extends TimerTask {
-    private final AtomicBoolean running = new AtomicBoolean(false);
+final class BumpTask extends Task {
     private final String commandToBump;
-    private final int loopTime;
     private final CommandEvent event;
 
     BumpTask(String commandToBump, int loopTime, CommandEvent event) {
+        super(loopTime, 0);
         this.commandToBump = commandToBump;
-        this.loopTime = loopTime;
         this.event = event;
     }
 
-    void scheduleBumpTask() {
-        Timer timer = new Timer(true);
-        int minutes = loopTime * 60000;
-        timer.scheduleAtFixedRate(this, 0, minutes);
-    }
-
-    boolean isNotRunning() {
-        return !running.get();
-    }
-
     @Override
-    public void run() {
-        running.set(true);
+    public void execute() {
         event.reply(commandToBump);
     }
 }

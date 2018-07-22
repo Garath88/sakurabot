@@ -9,9 +9,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Preconditions;
-import com.sakura.bot.Roles;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.sakura.bot.Roles;
 
 public final class BumpAddCommand extends Command {
     private static final Pattern VALID_PATTERN =
@@ -32,9 +32,10 @@ public final class BumpAddCommand extends Command {
             String args = event.getArgs();
             String[] arguments = splitArguments(args);
             validateCorrectInput(arguments);
-            BumpTaskListContainer.addBumpTask(arguments[0], Integer.valueOf(arguments[1]), event);
+            BumpTaskListSingleton.getInstance()
+                .addTask(new BumpTask(arguments[0], Integer.valueOf(arguments[1]), event));
             if (BumpCommand.isRunning()) {
-                BumpCommand.startBump(event, BumpTaskListContainer.getQueuedTasks());
+                BumpCommand.scheduleBump(event);
             }
             event.reply(
                 String.format("Successfully added command \"**%s**\" with a **%s** minute timer",

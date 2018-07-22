@@ -3,15 +3,15 @@ package com.sakura.bot.commands.say;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.sakura.bot.Roles;
-import com.sakura.bot.configuration.Config;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.sakura.bot.Roles;
+import com.sakura.bot.configuration.Config;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 
-public class SayDelCommand extends Command {
+public final class SayDelCommand extends Command {
     public SayDelCommand() {
         this.name = "say_del";
         this.help = "deletes the last message sent";

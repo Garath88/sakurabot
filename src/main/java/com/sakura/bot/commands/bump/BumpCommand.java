@@ -1,12 +1,12 @@
 package com.sakura.bot.commands.bump;
 
 import java.util.List;
-import java.util.TimerTask;
 
-import com.sakura.bot.Roles;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.sakura.bot.Roles;
 import com.sakura.bot.configuration.Config;
+import com.sakura.bot.tasks.Task;
 
 public final class BumpCommand extends Command {
     private static boolean running;
@@ -23,35 +23,38 @@ public final class BumpCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        List<BumpTask> bumpTasks = BumpTaskListContainer.getBumpTaskList();
+        List<Task> bumpTasks = BumpTaskListSingleton.getInstance().
+            getTaskList();
         if (bumpTasks.isEmpty()) {
             event.replyWarning(
                 "You haven't added any commands to bump! \n "
                     + "Please use the **" + Config.PREFIX + "bump_add** command");
         } else {
-            List<BumpTask> queuedTasks = BumpTaskListContainer.getQueuedTasks();
+            List<Task> queuedTasks = BumpTaskListSingleton.getInstance()
+                .getQueuedTasks();
             if (queuedTasks.isEmpty()) {
-                stopBump(event, bumpTasks);
+                stopBump(event);
             } else {
-                startBump(event, queuedTasks);
+                scheduleBump(event);
             }
         }
     }
 
-    static void startBump(CommandEvent event, List<BumpTask> queuedTasks) {
+    static void scheduleBump(CommandEvent event) {
         if (!running) {
             event.reply("**Starting bumping..** \n"
                 + "_I'll make ya bump hump wiggle and shake your rump!_");
         }
         running = true;
-        queuedTasks.forEach(BumpTask::scheduleBumpTask);
+        BumpTaskListSingleton.getInstance().
+            scheduleTasks();
     }
 
-    private static void stopBump(CommandEvent event, List<BumpTask> bumpTasks) {
+    private static void stopBump(CommandEvent event) {
         event.reply("**Stopping bumping..** \n"
             + "_I got you jumpin' an' bumpin' an' pumpin' movin' all around, G_");
         running = false;
-        bumpTasks.forEach(TimerTask::cancel);
-        bumpTasks.clear();
+        BumpTaskListSingleton.getInstance().
+            cancelTasks();
     }
 }
