@@ -6,11 +6,9 @@ import java.util.List;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.examples.command.PingCommand;
 import com.jagrosh.jdautilities.examples.command.ShutdownCommand;
-import com.sakura.bot.commands.bump.BumpAddCommand;
-import com.sakura.bot.commands.bump.BumpCommand;
+import com.sakura.bot.commands.SpoilerCommand;
 import com.sakura.bot.commands.say.SayAddCommand;
 import com.sakura.bot.commands.say.SayCommand;
-import com.sakura.bot.commands.say.SayDelCommand;
 import com.sakura.bot.commands.thread.ThreadCommand;
 
 public class CommandList {
@@ -37,18 +35,13 @@ public class CommandList {
         //            new HelloCommand(waiter),
         //
         //
-        // command to check bot latency
+
         commands.add(new PingCommand());
-
-        // command to shut off the bot
         commands.add(new ShutdownCommand());
-
-        commands.add(new BumpAddCommand());
-        commands.add(new BumpCommand());
         commands.add(new ThreadCommand());
         commands.add(new SayAddCommand());
         commands.add(new SayCommand());
-        commands.add(new SayDelCommand());
+        commands.add(new SpoilerCommand());
     }
 
     public List<Command> getCommands() {
