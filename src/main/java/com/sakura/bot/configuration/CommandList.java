@@ -11,7 +11,7 @@ import com.sakura.bot.commands.bump.BumpCommand;
 import com.sakura.bot.commands.say.SayAddCommand;
 import com.sakura.bot.commands.say.SayCommand;
 import com.sakura.bot.commands.say.SayDelCommand;
-import com.sakura.bot.commands.topic.TopicCommand;
+import com.sakura.bot.commands.thread.ThreadCommand;
 
 public class CommandList {
 
@@ -45,7 +45,7 @@ public class CommandList {
 
         commands.add(new BumpAddCommand());
         commands.add(new BumpCommand());
-        commands.add(new TopicCommand());
+        commands.add(new ThreadCommand());
         commands.add(new SayAddCommand());
         commands.add(new SayCommand());
         commands.add(new SayDelCommand());

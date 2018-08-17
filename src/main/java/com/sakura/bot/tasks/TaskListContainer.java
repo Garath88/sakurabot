@@ -31,4 +31,9 @@ public final class TaskListContainer {
         tasks.forEach(TimerTask::cancel);
         tasks.clear();
     }
+
+    public void cancelTask(Task task) {
+        task.cancel();
+        tasks.remove(task);
+    }
 }

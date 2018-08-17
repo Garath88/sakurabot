@@ -47,5 +47,4 @@ public class HelloCommand extends Command {
             // if the user takes more than a minute, time out
             1, TimeUnit.MINUTES, () -> event.reply("Sorry, you took too long."));
     }
-
 }

@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Config {
-    public static final String PREFIX = "!!";
+    public static final String PREFIX = "+";
     public static final String BOT_NAME = "Sakura";
     private final String token;
     private final String ownerId;

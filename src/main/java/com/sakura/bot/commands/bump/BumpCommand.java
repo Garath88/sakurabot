@@ -23,14 +23,14 @@ public final class BumpCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        List<Task> bumpTasks = BumpTaskListSingleton.getInstance().
+        List<Task> bumpTasks = BumpTaskList.getTaskListContainer().
             getTaskList();
         if (bumpTasks.isEmpty()) {
             event.replyWarning(
                 "You haven't added any commands to bump! \n "
                     + "Please use the **" + Config.PREFIX + "bump_add** command");
         } else {
-            List<Task> queuedTasks = BumpTaskListSingleton.getInstance()
+            List<Task> queuedTasks = BumpTaskList.getTaskListContainer()
                 .getQueuedTasks();
             if (queuedTasks.isEmpty()) {
                 stopBump(event);
@@ -46,7 +46,7 @@ public final class BumpCommand extends Command {
                 + "_I'll make ya bump hump wiggle and shake your rump!_");
         }
         running = true;
-        BumpTaskListSingleton.getInstance().
+        BumpTaskList.getTaskListContainer().
             scheduleTasks();
     }
 
@@ -54,7 +54,7 @@ public final class BumpCommand extends Command {
         event.reply("**Stopping bumping..** \n"
             + "_I got you jumpin' an' bumpin' an' pumpin' movin' all around, G_");
         running = false;
-        BumpTaskListSingleton.getInstance().
+        BumpTaskList.getTaskListContainer().
             cancelTasks();
     }
 }

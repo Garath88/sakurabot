@@ -32,7 +32,7 @@ public final class BumpAddCommand extends Command {
             String args = event.getArgs();
             String[] arguments = splitArguments(args);
             validateCorrectInput(arguments);
-            BumpTaskListSingleton.getInstance()
+            BumpTaskList.getTaskListContainer()
                 .addTask(new BumpTask(arguments[0], Integer.valueOf(arguments[1]), event));
             if (BumpCommand.isRunning()) {
                 BumpCommand.scheduleBump(event);

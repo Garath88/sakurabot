@@ -10,9 +10,9 @@ public abstract class Task extends TimerTask {
     private final int delay;
     private static final long MILLI_TO_MIN_COF = 60000;
 
-    public Task(int loopTime, int delay) {
-        this.loopTime = loopTime;
-        this.delay = delay;
+    public Task(int loopTimeInMinutes, int delayInMinutes) {
+        this.loopTime = loopTimeInMinutes;
+        this.delay = delayInMinutes;
     }
 
     boolean isNotRunning() {
@@ -20,6 +20,8 @@ public abstract class Task extends TimerTask {
     }
 
     void scheduleTask() {
+        if (isNotRunning())
+            running.set(true);
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(this, delay * MILLI_TO_MIN_COF,
             loopTime * MILLI_TO_MIN_COF);
@@ -29,7 +31,6 @@ public abstract class Task extends TimerTask {
 
     @Override
     public void run() {
-        running.set(true);
         execute();
     }
 }
