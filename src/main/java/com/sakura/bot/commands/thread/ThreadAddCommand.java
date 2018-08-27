@@ -9,23 +9,22 @@ import org.slf4j.LoggerFactory;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.sakura.bot.Roles;
 import com.sakura.bot.utils.ArgumentChecker;
 import com.sakura.bot.utils.CategoryUtil;
+import com.sakura.database.CustomChannelDbTable;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.TextChannel;
 
-public class ThreadCommand extends Command {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadCommand.class);
+public class ThreadAddCommand extends Command {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadAddCommand.class);
     private static final Pattern SYMBOL_PATTERN = Pattern.compile("[^\\w ]");
 
-    public ThreadCommand() {
+    public ThreadAddCommand() {
         this.name = "thread_add";
         this.help = "creates a new channel with topic";
         this.arguments = "<topic>";
-        this.requiredRoles = Roles.FAN.getValues();
         this.botPermissions = new Permission[] {
             Permission.MANAGE_CHANNEL
         };
@@ -42,6 +41,7 @@ public class ThreadCommand extends Command {
             ArgumentChecker.checkIfArgsAreNotEmpty(topic);
             validateTopicName(topic);
             Channel customChannel = createCustomChannel(event, topic);
+            CustomChannelDbTable.addChannel(event.getMember().getUser(), customChannel);
             TextChannel customTextChannel = sendTopicHasBeenSetMsg(customChannel, topic);
             InactiveChannelTaskList.startInactivityTask(customTextChannel);
 

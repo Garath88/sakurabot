@@ -36,4 +36,10 @@ public final class TaskListContainer {
         task.cancel();
         tasks.remove(task);
     }
+
+    public void reScheduleTask(Task oldTask, Task newTask) {
+        cancelTask(oldTask);
+        addTask(newTask);
+        newTask.scheduleTask();
+    }
 }

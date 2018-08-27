@@ -32,3 +32,11 @@ hs_err_pid*
 out
 gen
 /src/main/resources/configuration/config.txt
+/src/main/resources/configuration/mariadb.txt
+target/classes/configuration/
+target/classes/logback.xml
+target/dependency-reduced-pom.xml
+target/docker/Dockerfile
+target/generated-sources/
+target/maven-archiver/
+target/maven-status/

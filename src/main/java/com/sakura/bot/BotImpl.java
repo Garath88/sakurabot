@@ -1,5 +1,7 @@
 package com.sakura.bot;
 
+import java.io.IOException;
+
 import javax.security.auth.login.LoginException;
 
 import org.slf4j.Logger;
@@ -17,13 +19,12 @@ import net.dv8tion.jda.core.entities.Game;
 
 public class BotImpl implements Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(BotImpl.class);
-
+    private final Config config;
     private CommandClientBuilder client = new CommandClientBuilder();
     private EventWaiter waiter = new EventWaiter();
-    private Config config;
 
-    public BotImpl(Config config) {
-        this.config = config;
+    public BotImpl() throws IOException {
+        this.config = new Config();
         setupParameters();
     }
 
@@ -68,7 +69,7 @@ public class BotImpl implements Bot {
             // add the listeners
             .addEventListener(waiter)
             .addEventListener(client.build())
-            .addEventListener(new StartupListenerImpl())
+            .addEventListener(new BotListener())
 
             // start it up!
             .buildAsync();

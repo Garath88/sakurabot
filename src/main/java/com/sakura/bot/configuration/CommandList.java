@@ -9,7 +9,8 @@ import com.jagrosh.jdautilities.examples.command.ShutdownCommand;
 import com.sakura.bot.commands.SpoilerCommand;
 import com.sakura.bot.commands.say.SayAddCommand;
 import com.sakura.bot.commands.say.SayCommand;
-import com.sakura.bot.commands.thread.ThreadCommand;
+import com.sakura.bot.commands.thread.ThreadAddCommand;
+import com.sakura.bot.commands.thread.ThreadDelCommand;
 
 public class CommandList {
 
@@ -38,7 +39,8 @@ public class CommandList {
 
         commands.add(new PingCommand());
         commands.add(new ShutdownCommand());
-        commands.add(new ThreadCommand());
+        commands.add(new ThreadAddCommand());
+        commands.add(new ThreadDelCommand());
         commands.add(new SayAddCommand());
         commands.add(new SayCommand());
         commands.add(new SpoilerCommand());
