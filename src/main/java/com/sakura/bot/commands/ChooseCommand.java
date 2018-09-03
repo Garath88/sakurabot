@@ -25,7 +25,7 @@ public class ChooseCommand extends Command {
 
     public ChooseCommand() {
         this.name = "choose";
-        this.help = "make a decision";
+        this.help = "make a decision.";
         this.arguments = "<item> <item> ...";
         this.guildOnly = false;
     }

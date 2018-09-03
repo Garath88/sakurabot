@@ -10,13 +10,14 @@ import net.dv8tion.jda.core.entities.Category;
 
 public final class CategoryUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoryUtil.class);
+    private static final String CATEGORY = "current threads";
 
     private CategoryUtil() {
     }
 
-    public static Category getCustomCategory(JDA jda) {
-        // TODO remove hardcoded CUSTOM category
-        return FinderUtil.findCategories("CUSTOM", jda)
+    public static Category getThreadCategory(JDA jda) {
+        // TODO remove hardcoded category
+        return FinderUtil.findCategories(CATEGORY, jda)
             .stream()
             .findFirst()
             .orElseThrow(() -> {

@@ -4,10 +4,10 @@ import com.sakura.bot.tasks.TaskListContainer;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 
-public final class InactiveChannelTaskList {
+public final class InactiveThreadTaskList {
     private static TaskListContainer taskListContainer = new TaskListContainer();
 
-    private InactiveChannelTaskList() {
+    private InactiveThreadTaskList() {
     }
 
     static TaskListContainer getTaskListContainer() {
@@ -15,7 +15,7 @@ public final class InactiveChannelTaskList {
     }
 
     public static void startInactivityTask(TextChannel textChannel) {
-        taskListContainer.addTask(new InactiveChannelCheckTask(textChannel));
+        taskListContainer.addTask(new InactiveThreadCheckTask(textChannel));
         taskListContainer.scheduleTasks();
     }
 }

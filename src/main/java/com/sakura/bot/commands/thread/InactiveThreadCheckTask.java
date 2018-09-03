@@ -11,27 +11,28 @@ import com.sakura.bot.tasks.Task;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 
-public final class InactiveChannelCheckTask extends Task {
-    private static final int EXPIRE_ATER_MINUTES = 24 * 60;
-    private static final int WARNING_BEFORE_MINUTES = 8 * 60;
-    private static final int FINAL_WARNING_BEFORE_MINUTES = 60;
-    private final TextChannel customTextChannel;
+public final class InactiveThreadCheckTask extends Task {
+    private static final int NO_CONTENT_EXPIRE_AFTER_MIN = 20;
+    private static final int EXPIRE_AFTER_MIN = 24 * 60;
+    private static final int WARNING_BEFORE_MIN = 8 * 60;
+    private static final int FINAL_WARNING_BEFORE_MIN = 60;
+    private final TextChannel thread;
 
-    InactiveChannelCheckTask(TextChannel customTextChannel) {
-        super(WARNING_BEFORE_MINUTES / 2, 0);
-        this.customTextChannel = customTextChannel;
+    InactiveThreadCheckTask(TextChannel thread) {
+        super((long)(NO_CONTENT_EXPIRE_AFTER_MIN / 1.5), 0);
+        this.thread = thread;
     }
 
-    private InactiveChannelCheckTask(TextChannel customTextChannel,
+    private InactiveThreadCheckTask(TextChannel thread,
         long loopTime, long delay) {
         super(loopTime, delay);
-        this.customTextChannel = customTextChannel;
+        this.thread = thread;
     }
 
     @Override
     public void execute() {
-        if (customTextChannel.getJDA().getTextChannels().stream()
-            .anyMatch(chan -> chan.getId().equals(customTextChannel.getId())
+        if (thread.getJDA().getTextChannels().stream()
+            .anyMatch(chan -> chan.getId().equals(thread.getId())
                 && chan.hasLatestMessage())) {
             checkIfChannelIsInactive();
         }
@@ -41,24 +42,24 @@ public final class InactiveChannelCheckTask extends Task {
         long timeLeft = getExpirationTimeInMinutes();
         if (timeLeft <= 0) {
             deleteChannel();
-        } else if (timeLeft <= FINAL_WARNING_BEFORE_MINUTES) {
-            customTextChannel.sendMessage(createInactivityMessage())
+        } else if (timeLeft <= FINAL_WARNING_BEFORE_MIN) {
+            thread.sendMessage(createInactivityMessage())
                 .queue();
             scheduleDelete(timeLeft, 0);
-        } else if (timeLeft <= WARNING_BEFORE_MINUTES) {
-            customTextChannel.sendMessage(createInactivityMessage())
+        } else if (timeLeft <= WARNING_BEFORE_MIN) {
+            thread.sendMessage(createInactivityMessage())
                 .queue();
-            scheduleDelete(timeLeft, FINAL_WARNING_BEFORE_MINUTES);
+            scheduleDelete(timeLeft, FINAL_WARNING_BEFORE_MIN);
         }
     }
 
     private void scheduleDelete(long timeLeft, long warningTime) {
-        reScheduleTask(new InactiveChannelCheckTask(customTextChannel,
+        reScheduleTask(new InactiveThreadCheckTask(thread,
             1, timeLeft - warningTime));
     }
 
     private List<Message> getLatestMessages() {
-        return customTextChannel.getIterableHistory().stream()
+        return thread.getIterableHistory().stream()
             .limit(5)
             .collect(Collectors.toList());
     }
@@ -67,8 +68,14 @@ public final class InactiveChannelCheckTask extends Task {
         List<Message> latestMessages = getLatestMessages();
         OffsetDateTime creationTime = getLatestMessageTime(latestMessages);
         OffsetDateTime currentTime = OffsetDateTime.now(ZoneOffset.UTC);
-        return currentTime.until(creationTime.plusMinutes(EXPIRE_ATER_MINUTES),
-            ChronoUnit.MINUTES);
+        if (creationTime != null) {
+            return currentTime.until(creationTime.plusMinutes(EXPIRE_AFTER_MIN),
+                ChronoUnit.MINUTES);
+        } else {
+            return currentTime.until(thread.getCreationTime()
+                    .plusMinutes(NO_CONTENT_EXPIRE_AFTER_MIN),
+                ChronoUnit.MINUTES);
+        }
     }
 
     private OffsetDateTime getLatestMessageTime(List<Message> latestMessages) {
@@ -76,7 +83,7 @@ public final class InactiveChannelCheckTask extends Task {
         if (latestUserMsg != null) {
             return latestUserMsg.getCreationTime();
         }
-        return customTextChannel.getCreationTime();
+        return null;
     }
 
     private Message getLatestUserMessage(List<Message> messages) {
@@ -90,9 +97,9 @@ public final class InactiveChannelCheckTask extends Task {
     }
 
     private void deleteChannel() {
-        InactiveChannelTaskList.getTaskListContainer()
+        InactiveThreadTaskList.getTaskListContainer()
             .cancelTask(this);
-        customTextChannel.delete()
+        thread.delete()
             .queue();
     }
 
@@ -100,12 +107,12 @@ public final class InactiveChannelCheckTask extends Task {
         long expirationTime = getExpirationTimeInMinutes();
         long hours = expirationTime / 60;
         long minutes = expirationTime % 60;
-        return String.format("This channel has been marked as **inactive** "
+        return String.format("This thread has been marked as **inactive** "
             + "and will be deleted in **%dh:%02dm** if no activity occurs!", hours, minutes);
     }
 
     private void reScheduleTask(Task newTask) {
-        InactiveChannelTaskList.getTaskListContainer()
+        InactiveThreadTaskList.getTaskListContainer()
             .reScheduleTask(this,
                 newTask);
     }

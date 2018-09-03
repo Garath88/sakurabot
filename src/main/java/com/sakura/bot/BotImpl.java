@@ -1,13 +1,13 @@
 package com.sakura.bot;
 
-import java.io.IOException;
-
 import javax.security.auth.login.LoginException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.configuration.CommandList;
 import com.sakura.bot.configuration.Config;
@@ -19,12 +19,10 @@ import net.dv8tion.jda.core.entities.Game;
 
 public class BotImpl implements Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(BotImpl.class);
-    private final Config config;
     private CommandClientBuilder client = new CommandClientBuilder();
     private EventWaiter waiter = new EventWaiter();
 
-    public BotImpl() throws IOException {
-        this.config = new Config();
+    public BotImpl() {
         setupParameters();
     }
 
@@ -33,13 +31,18 @@ public class BotImpl implements Bot {
         client.useDefaultGame();
 
         // sets the owner of the bot
-        client.setOwnerId(config.getOwnerId());
+        client.setOwnerId(Config.getOwnerId());
 
         // sets emojis used throughout the bot on successes, warnings, and failures
         client.setEmojis("\uD83D\uDE03", "\uD83D\uDE2E", "\uD83D\uDE26");
 
         // sets the bot prefix
         client.setPrefix(Config.PREFIX);
+    }
+
+    @Override
+    public EventWaiter getEventWaiter() {
+        return waiter;
     }
 
     @Override
@@ -58,9 +61,10 @@ public class BotImpl implements Bot {
     }
 
     private void init() throws LoginException {
+        CommandClient bot = client.build();
         new JDABuilder(AccountType.BOT)
             // set the token
-            .setToken(config.getToken())
+            .setToken(Config.getToken())
 
             // set the game for when the bot is loading
             .setStatus(OnlineStatus.DO_NOT_DISTURB)
@@ -68,8 +72,8 @@ public class BotImpl implements Bot {
 
             // add the listeners
             .addEventListener(waiter)
-            .addEventListener(client.build())
-            .addEventListener(new BotListener())
+            .addEventListener(bot)
+            .addEventListener(new BotListener((CommandClientImpl)bot))
 
             // start it up!
             .buildAsync();

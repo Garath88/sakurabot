@@ -13,7 +13,7 @@ public final class BumpCommand extends Command {
 
     public BumpCommand() {
         this.name = "bump";
-        this.help = "repeat commands periodically";
+        this.help = "repeat commands periodically.";
         this.requiredRoles = Roles.MODERATOR.getValues();
     }
 

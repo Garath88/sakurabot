@@ -1,13 +1,17 @@
 package com.sakura.bot.utils;
 
+import java.util.Arrays;
+
 public final class ArgumentChecker {
     private ArgumentChecker() {
     }
 
     public static void checkArgsBySpace(String arguments, int requiredArguments) {
         String[] items = arguments.split("\\s+");
-        if (items.length != requiredArguments) {
-            throw new IllegalArgumentException("Wrong number of arguments, `" + items[0] + "`");
+        if (requiredArguments == 0 && !Arrays.toString(items).equals("[]")
+            && items.length != requiredArguments) {
+            throw new IllegalArgumentException(String.format("Wrong number of arguments, expected: %d",
+                requiredArguments));
         }
     }
 

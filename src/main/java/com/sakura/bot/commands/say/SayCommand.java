@@ -7,9 +7,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sakura.bot.Roles;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.sakura.bot.Roles;
 import com.sakura.bot.configuration.Config;
 
 import net.dv8tion.jda.core.entities.Message;
@@ -20,27 +20,37 @@ public final class SayCommand extends Command {
 
     public SayCommand() {
         this.name = "say";
-        this.help = "say something in a channel";
-        this.arguments = "<text>";
-        this.guildOnly = false;
+        this.help = "say something in a channel or with no arguments lists current talking channel.";
+        this.arguments = "[<text>]";
+        this.guildOnly = true;
         this.requiredRoles = Roles.MODERATOR.getValues();
     }
 
     @Override
     protected void execute(CommandEvent event) {
         try {
-            TextChannel textChannel = SayChannelStorage.getChannel()
-                .orElseThrow(IllegalArgumentException::new);
-            sendAttachments(event, textChannel);
-            sendMessage(event, textChannel);
+            String message = event.getArgs();
+            say(event, message);
         } catch (IllegalArgumentException e) {
-            event.replyWarning(
-                "You haven't added a text channel to talk in! \n "
-                    + "Please use the **" + Config.PREFIX + "say_add** command");
+            event.replyWarning(e.getMessage());
+
         }
     }
 
-    private void sendAttachments(CommandEvent event, TextChannel textChannel) {
+    private void say(CommandEvent event, String message) {
+        TextChannel textChannel = SayChannelStorage.getChannel()
+            .orElseThrow(() -> new IllegalArgumentException("You haven't added a text channel to talk in! \n "
+                + "Please use the **" + Config.PREFIX + "say_add** command"));
+        if (StringUtils.isNotEmpty(message)) {
+            sendAttachments(event, textChannel);
+            sendMessage(message, textChannel);
+        } else {
+            event.reply(String.format("Currently talking in channel: **%s**",
+                textChannel.getName()));
+        }
+    }
+
+    private static void sendAttachments(CommandEvent event, TextChannel textChannel) {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         attachments.forEach(attachment -> {
             try {
@@ -52,8 +62,7 @@ public final class SayCommand extends Command {
         });
     }
 
-    private void sendMessage(CommandEvent event, TextChannel textChannel) {
-        String message = event.getArgs();
+    static void sendMessage(String message, TextChannel textChannel) {
         if (!StringUtils.isEmpty(message)) {
             message = "- " + message;
             textChannel.sendMessage(message)

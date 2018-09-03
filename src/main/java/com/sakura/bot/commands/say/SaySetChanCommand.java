@@ -5,20 +5,20 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Preconditions;
-import com.sakura.bot.Roles;
-import com.sakura.bot.utils.ArgumentChecker;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.sakura.bot.Roles;
+import com.sakura.bot.utils.ArgumentChecker;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 
-public final class SayAddCommand extends Command {
-    public SayAddCommand() {
-        this.name = "say_add";
-        this.help = "pick a channel to talk in";
+public final class SaySetChanCommand extends Command {
+    public SaySetChanCommand() {
+        this.name = "say_set_chan";
+        this.help = "sets a channel where Sakura can talk in.";
         this.arguments = "<channel id>";
         this.requiredRoles = Roles.MODERATOR.getValues();
-        this.guildOnly = false;
+        this.guildOnly = true;
     }
 
     @Override
@@ -30,7 +30,7 @@ public final class SayAddCommand extends Command {
             SayChannelStorage.setChannel(channel);
 
             event.reply(
-                String.format("Successfully added channel \"**%s**\" ", channel.getName()));
+                String.format("Now talking in channel: **%s** ", channel.getName()));
         } catch (IllegalArgumentException e) {
             event.replyWarning(e.getMessage());
         }

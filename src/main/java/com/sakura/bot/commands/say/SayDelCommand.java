@@ -14,9 +14,9 @@ import net.dv8tion.jda.core.entities.TextChannel;
 public final class SayDelCommand extends Command {
     public SayDelCommand() {
         this.name = "say_del";
-        this.help = "deletes the last message sent";
+        this.help = "deletes the last message sent.";
         this.requiredRoles = Roles.MODERATOR.getValues();
-        this.guildOnly = false;
+        this.guildOnly = true;
     }
 
     @Override

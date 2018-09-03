@@ -4,13 +4,13 @@ import java.util.Optional;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 
-final class SayChannelStorage {
+public final class SayChannelStorage {
     private static TextChannel channel = null;
 
     private SayChannelStorage() {
     }
 
-    static Optional<TextChannel> getChannel() {
+    public static Optional<TextChannel> getChannel() {
         return Optional.ofNullable(channel);
     }
 

@@ -11,7 +11,7 @@ import net.dv8tion.jda.core.Permission;
 public class SpoilerCommand extends Command {
     public SpoilerCommand() {
         this.name = "spoiler";
-        this.help = "If you want to say something that might be a spoiler";
+        this.help = "If you want to say something that might be a spoiler.";
         this.arguments = "<text>";
         this.botPermissions = new Permission[] {
             Permission.MESSAGE_MANAGE
@@ -22,9 +22,9 @@ public class SpoilerCommand extends Command {
     protected void execute(CommandEvent event) {
         try {
             String arguments = event.getArgs();
+            ArgumentChecker.checkIfArgsAreNotEmpty(arguments);
             event.getMessage().delete()
                 .queue();
-            ArgumentChecker.checkIfArgsAreNotEmpty(arguments);
             String uriEncodedText = UriEncodingUtil.encodeURIComponent(arguments);
             String description = String.format("[Hover to view](https://dummyimage.com/600x400/000/fff&text=%s \"%s\")",
                 uriEncodedText, arguments);

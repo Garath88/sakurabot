@@ -21,7 +21,7 @@ public final class BumpAddCommand extends Command {
 
     public BumpAddCommand() {
         this.name = "bump_add";
-        this.help = "add a command with a timer (in minutes) to bump";
+        this.help = "add a command with a timer (in minutes) to bump.";
         this.arguments = "<command> <timer>";
         this.requiredRoles = Roles.MODERATOR.getValues();
     }
