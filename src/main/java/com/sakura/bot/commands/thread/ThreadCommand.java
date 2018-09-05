@@ -70,6 +70,7 @@ public class ThreadCommand extends Command {
 
     private static void validateTopicName(String topic, CommandEvent event) {
         if (StringUtils.isNotEmpty(topic) && topic.length() >= 2 && topic.length() <= 100) {
+            topic = topic.replaceAll("'", "");
             Matcher matcher = SYMBOL_PATTERN.matcher(topic);
             if (matcher.find()) {
                 throw new IllegalArgumentException("Invalid input, topic can not contain special character");
@@ -77,8 +78,8 @@ public class ThreadCommand extends Command {
             String badWord = WordBlacklist.searchBadWord(topic);
             if (StringUtils.isNotEmpty(badWord)) {
                 User owner = event.getJDA().getUserById(Config.getOwnerId());
-                event.replyError(owner.getAsMention() + "\nhttps://i.makeagif.com/media/2-21-2015/RDVwim.gif");
-                throw new IllegalArgumentException(String.format("Found blacklisted word **%s** in topic name", badWord));
+                event.reply(owner.getAsMention() + " says: \nhttps://i.makeagif.com/media/2-21-2015/RDVwim.gif");
+                throw new IllegalArgumentException(String.format("Found blacklisted phrase **%s** in topic name", badWord));
             }
         } else {
             throw new IllegalArgumentException("Topic can not be empty and must be between 2-100 characters");

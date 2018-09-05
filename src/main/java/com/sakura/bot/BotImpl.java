@@ -74,7 +74,6 @@ public class BotImpl implements Bot {
             .addEventListener(waiter)
             .addEventListener(bot)
             .addEventListener(new BotListener((CommandClientImpl)bot))
-
             // start it up!
             .buildAsync();
     }

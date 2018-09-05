@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -47,14 +49,24 @@ public final class WordBlacklist {
             .replaceAll("\\s+", "");
         String badWord = "";
         for (String needle : BAD_WORDS) {
-            if (haystack.contains(needle)) {
-                badWord = needle;
-                String debug = String.format("%s contains %s", input, needle);
-                LOGGER.debug(debug);
+            if (needle.contains("|")) {
+                String delimtedBadWord = needle.replaceAll("\\|", "");
+                String pattern = "\\b" + delimtedBadWord + "\\b";
+                Pattern p = Pattern.compile(pattern);
+                Matcher m = p.matcher(input);
+                if (m.find()) {
+                    badWord = delimtedBadWord;
+                    String debug = String.format("%s contains %s", input, delimtedBadWord);
+                    LOGGER.debug(debug);
+                }
+            } else {
+                if (haystack.contains(needle)) {
+                    badWord = needle;
+                    String debug = String.format("%s contains %s", input, needle);
+                    LOGGER.debug(debug);
+                }
             }
         }
-        String debug = String.format("%s not found in blacklist", input);
-        LOGGER.debug(debug);
         return badWord;
     }
 }

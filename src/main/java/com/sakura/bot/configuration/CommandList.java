@@ -5,12 +5,12 @@ import java.util.List;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.jagrosh.jdautilities.examples.command.PingCommand;
-import com.jagrosh.jdautilities.examples.command.ShutdownCommand;
+import com.sakura.bot.commands.PingCommand;
+import com.sakura.bot.commands.ShutdownCommand;
 import com.sakura.bot.commands.SpoilerCommand;
-import com.sakura.bot.commands.say.SaySetChanCommand;
-import com.sakura.bot.commands.say.SayCommand;
-import com.sakura.bot.commands.say.SayThreadCommand;
+import com.sakura.bot.commands.say.SakuraSayCommand;
+import com.sakura.bot.commands.say.SakuraSetChanCommand;
+import com.sakura.bot.commands.say.SakuraThreadCommand;
 import com.sakura.bot.commands.thread.DeleteThreadCommand;
 import com.sakura.bot.commands.thread.ThreadCommand;
 
@@ -43,10 +43,10 @@ public class CommandList {
         commands.add(new ShutdownCommand());
         commands.add(new ThreadCommand());
         commands.add(new DeleteThreadCommand(waiter));
-        commands.add(new SaySetChanCommand());
-        commands.add(new SayCommand());
         commands.add(new SpoilerCommand());
-        commands.add(new SayThreadCommand(waiter));
+        commands.add(new SakuraSetChanCommand());
+        commands.add(new SakuraSayCommand());
+        commands.add(new SakuraThreadCommand());
     }
 
     public List<Command> getCommands() {

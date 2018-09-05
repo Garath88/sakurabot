@@ -4,10 +4,10 @@ import java.util.Optional;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 
-public final class SayChannelStorage {
+public final class SakuraChannelStorage {
     private static TextChannel channel = null;
 
-    private SayChannelStorage() {
+    private SakuraChannelStorage() {
     }
 
     public static Optional<TextChannel> getChannel() {
@@ -15,6 +15,6 @@ public final class SayChannelStorage {
     }
 
     static void setChannel(TextChannel channel) {
-        SayChannelStorage.channel = channel;
+        SakuraChannelStorage.channel = channel;
     }
 }

@@ -12,13 +12,13 @@ import com.sakura.bot.utils.ArgumentChecker;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 
-public final class SaySetChanCommand extends Command {
-    public SaySetChanCommand() {
-        this.name = "say_set_chan";
+public final class SakuraSetChanCommand extends Command {
+    public SakuraSetChanCommand() {
+        this.name = "sakura_set_chan";
         this.help = "sets a channel where Sakura can talk in.";
         this.arguments = "<channel id>";
         this.requiredRoles = Roles.MODERATOR.getValues();
-        this.guildOnly = true;
+        this.guildOnly = false;
     }
 
     @Override
@@ -27,7 +27,7 @@ public final class SaySetChanCommand extends Command {
             String args = event.getArgs();
             validateInput(args);
             TextChannel channel = getChannel(args, event);
-            SayChannelStorage.setChannel(channel);
+            SakuraChannelStorage.setChannel(channel);
 
             event.reply(
                 String.format("Now talking in channel: **%s** ", channel.getName()));
