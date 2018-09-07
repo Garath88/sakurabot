@@ -10,16 +10,17 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.configuration.Config;
-import com.sakura.bot.utils.ArgumentChecker;
-import com.sakura.bot.utils.CategoryUtil;
 import com.sakura.bot.database.ThreadDbTable;
 import com.sakura.bot.database.ThreadInfo;
+import com.sakura.bot.utils.ArgumentChecker;
+import com.sakura.bot.utils.CategoryUtil;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class DeleteThreadCommand extends Command {
+    private static final int RESPONSE_TIMEOUT_IN_SEC = 35;
     private final EventWaiter waiter;
 
     public DeleteThreadCommand(EventWaiter waiter) {
@@ -48,7 +49,7 @@ public class DeleteThreadCommand extends Command {
                     // respond, inserting the name they listed into the response
                     e -> deleteChannel(event, e, customChannelInfo),
                     // if the user takes more than a minute, time out
-                    35, TimeUnit.SECONDS, () -> event.reply(String.format("Sorry %s, you took too long.",
+                    RESPONSE_TIMEOUT_IN_SEC, TimeUnit.SECONDS, () -> event.reply(String.format("Sorry %s, you took too long.",
                         event.getMessage().getAuthor().getAsMention())));
             }
         } catch (IllegalArgumentException e) {

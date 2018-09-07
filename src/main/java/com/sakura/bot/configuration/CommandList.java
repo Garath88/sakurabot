@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.sakura.bot.commands.ChannelSpacingCommand;
 import com.sakura.bot.commands.MemberCommand;
 import com.sakura.bot.commands.SpoilerCommand;
 import com.sakura.bot.commands.say.SakuraDMCommand;
@@ -53,6 +54,7 @@ public class CommandList {
         commands.add(new MemberCommand(waiter));
         commands.add(new SakuraDMCommand());
         commands.add(new RebootCommand());
+        commands.add(new ChannelSpacingCommand());
     }
 
     public List<Command> getCommands() {

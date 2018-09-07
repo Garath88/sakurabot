@@ -82,7 +82,8 @@ public class ThreadCommand extends Command {
     private static void createThreadChannel(CommandEvent event, String topic, boolean storeInDatabase) {
         net.dv8tion.jda.core.entities.Category threadCategory = CategoryUtil.getThreadCategory(event.getJDA());
         validateThreadName(threadCategory, topic);
-        event.getGuild().getController().createTextChannel(topic)
+        final String channelTopic = topic.replaceAll(" ", "` `");
+        event.getGuild().getController().createTextChannel(channelTopic)
             .setTopic(topic)
             .setNSFW(true)
             .setParent(threadCategory)
