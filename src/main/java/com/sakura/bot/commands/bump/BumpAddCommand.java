@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.common.base.Preconditions;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.sakura.bot.Roles;
+import com.sakura.bot.Permissions;
 
 public final class BumpAddCommand extends Command {
     private static final Pattern VALID_PATTERN =
@@ -23,7 +23,7 @@ public final class BumpAddCommand extends Command {
         this.name = "bump_add";
         this.help = "add a command with a timer (in minutes) to bump.";
         this.arguments = "<command> <timer>";
-        this.requiredRoles = Roles.MODERATOR.getValues();
+        this.requiredRoles = Permissions.MODERATOR.getValues();
     }
 
     @Override

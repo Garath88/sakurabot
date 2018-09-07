@@ -2,7 +2,7 @@ package com.sakura.bot.commands.say;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.sakura.bot.Roles;
+import com.sakura.bot.Permissions;
 import com.sakura.bot.commands.thread.ThreadCommand;
 import com.sakura.bot.configuration.Config;
 import com.sakura.bot.utils.ArgumentChecker;
@@ -16,7 +16,7 @@ public class SakuraThreadCommand extends Command {
         this.name = "sakura_thread";
         this.help = "Sakura creates a new thread.";
         this.arguments = "<topic>";
-        this.requiredRoles = Roles.MODERATOR.getValues();
+        this.requiredRoles = Permissions.MODERATOR.getValues();
         this.guildOnly = false;
         this.botPermissions = new Permission[] {
             Permission.MANAGE_CHANNEL

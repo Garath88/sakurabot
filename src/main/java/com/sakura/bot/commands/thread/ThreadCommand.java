@@ -10,10 +10,10 @@ import org.slf4j.LoggerFactory;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sakura.bot.configuration.Config;
+import com.sakura.bot.database.ThreadDbTable;
 import com.sakura.bot.utils.ArgumentChecker;
 import com.sakura.bot.utils.CategoryUtil;
 import com.sakura.bot.utils.WordBlacklist;
-import com.sakura.database.ThreadDbTable;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
@@ -58,14 +58,7 @@ public class ThreadCommand extends Command {
     public static void createNewThread(CommandEvent event, String topic, boolean storeInDatabase) {
         ArgumentChecker.checkIfArgsAreNotEmpty(topic);
         validateTopicName(topic, event);
-
-        Channel threadChannel = createThreadChannel(event, topic);
-        if (storeInDatabase) {
-            ThreadDbTable.addThread(event.getMember()
-                .getUser(), threadChannel);
-        }
-        TextChannel threadTextChannel = sendTopicHasBeenSetMsg(threadChannel, topic);
-        InactiveThreadTaskList.startInactivityTask(threadTextChannel);
+        createThreadChannel(event, topic, storeInDatabase);
     }
 
     private static void validateTopicName(String topic, CommandEvent event) {
@@ -86,17 +79,15 @@ public class ThreadCommand extends Command {
         }
     }
 
-    private static Channel createThreadChannel(CommandEvent event, String topic) {
-        Channel channel;
+    private static void createThreadChannel(CommandEvent event, String topic, boolean storeInDatabase) {
         net.dv8tion.jda.core.entities.Category threadCategory = CategoryUtil.getThreadCategory(event.getJDA());
         validateThreadName(threadCategory, topic);
-        channel = event.getGuild().getController().createTextChannel(topic)
+        event.getGuild().getController().createTextChannel(topic)
             .setTopic(topic)
             .setNSFW(true)
             .setParent(threadCategory)
-            .complete();
+            .queue(chan -> doTasks(chan, event, topic, storeInDatabase));
         event.reply(String.format("Succesfully created new thread: **%s**", topic));
-        return channel;
     }
 
     private static void validateThreadName(net.dv8tion.jda.core.entities.Category customCategory, String topic) {
@@ -104,6 +95,15 @@ public class ThreadCommand extends Command {
             throw new IllegalArgumentException(String.format(
                 "This thread already exists! **%s**", topic));
         }
+    }
+
+    private static void doTasks(Channel threadChannel, CommandEvent event, String topic, boolean storeInDatabase) {
+        if (storeInDatabase) {
+            ThreadDbTable.addThread(event.getMember()
+                .getUser(), threadChannel);
+        }
+        TextChannel threadTextChannel = sendTopicHasBeenSetMsg(threadChannel, topic);
+        InactiveThreadTaskList.startInactivityTask(threadTextChannel);
     }
 
     private static TextChannel sendTopicHasBeenSetMsg(Channel threadChannel, String topic) {

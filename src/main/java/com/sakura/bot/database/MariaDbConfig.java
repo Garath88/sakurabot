@@ -1,4 +1,4 @@
-package com.sakura.database;
+package com.sakura.bot.database;
 
 import java.io.IOException;
 import java.util.List;

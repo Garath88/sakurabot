@@ -1,4 +1,4 @@
-package com.sakura.database;
+package com.sakura.bot.database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.ISnowflake;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
 public final class ThreadDbTable {
@@ -39,7 +41,7 @@ public final class ThreadDbTable {
         }
     }
 
-    public static List<Long> getAllChannelIds() {
+    private static List<Long> getAllChannelIds() {
         String sql = String.format("SELECT `id` FROM %s", DB_NAME);
         ResultSet result = MariaDbConnector.executeSql(sql);
         List<Long> channelIds = new ArrayList<>();
@@ -87,5 +89,16 @@ public final class ThreadDbTable {
         String sql = String.format(
             "DELETE FROM %s WHERE `id` = %s", DB_NAME, id);
         executeQuery(sql);
+    }
+
+    public static void checkForThreadDbInconsistency(List<TextChannel> allCustomChannels) {
+        List<Long> allCustomChannelsById = allCustomChannels.stream()
+            .map(ISnowflake::getIdLong)
+            .collect(Collectors.toList());
+        List<Long> deletedChannels = ThreadDbTable.getAllChannelIds().stream()
+            .filter(chanId -> !allCustomChannelsById
+                .contains(chanId))
+            .collect(Collectors.toList());
+        deletedChannels.forEach(ThreadDbTable::deleteChannel);
     }
 }

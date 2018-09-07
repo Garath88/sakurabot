@@ -12,8 +12,8 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.configuration.Config;
 import com.sakura.bot.utils.ArgumentChecker;
 import com.sakura.bot.utils.CategoryUtil;
-import com.sakura.database.ThreadDbTable;
-import com.sakura.database.ThreadInfo;
+import com.sakura.bot.database.ThreadDbTable;
+import com.sakura.bot.database.ThreadInfo;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.TextChannel;

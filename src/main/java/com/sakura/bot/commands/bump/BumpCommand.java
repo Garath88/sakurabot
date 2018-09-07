@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.sakura.bot.Roles;
+import com.sakura.bot.Permissions;
 import com.sakura.bot.configuration.Config;
 import com.sakura.bot.tasks.Task;
 
@@ -14,7 +14,7 @@ public final class BumpCommand extends Command {
     public BumpCommand() {
         this.name = "bump";
         this.help = "repeat commands periodically.";
-        this.requiredRoles = Roles.MODERATOR.getValues();
+        this.requiredRoles = Permissions.MODERATOR.getValues();
     }
 
     static boolean isRunning() {

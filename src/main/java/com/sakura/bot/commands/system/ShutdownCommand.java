@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sakura.bot.commands;
-
-import java.time.temporal.ChronoUnit;
+package com.sakura.bot.commands.system;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -26,25 +24,23 @@ import com.jagrosh.jdautilities.examples.doc.Author;
  * @author John Grosh (jagrosh)
  */
 @CommandInfo(
-    name = { "Ping", "Pong" },
-    description = "Checks the bot's latency"
+    name = "Shutdown",
+    description = "Safely shuts down the bot."
 )
 @Author("John Grosh (jagrosh)")
-public class PingCommand extends Command {
+public class ShutdownCommand extends Command {
 
-    public PingCommand() {
-        this.name = "ping";
-        this.help = "checks the bot's latency";
+    public ShutdownCommand() {
+        this.name = "shutdown";
+        this.help = "safely shuts off the bot";
         this.guildOnly = false;
-        this.aliases = new String[] { "pong" };
+        this.ownerCommand = true;
     }
 
     @Override
     protected void execute(CommandEvent event) {
-        event.reply("Ping: ...", m -> {
-            long ping = event.getMessage().getCreationTime().until(m.getCreationTime(), ChronoUnit.MILLIS);
-            m.editMessage("Ping: " + ping + "ms | Websocket: " + event.getJDA().getPing() + "ms").queue();
-        });
+        event.reactWarning();
+        event.getJDA().shutdown();
     }
 
 }

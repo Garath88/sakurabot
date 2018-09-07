@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.sakura.bot.Roles;
+import com.sakura.bot.Permissions;
 import com.sakura.bot.configuration.Config;
 import com.sakura.bot.utils.EmojiUtil;
 import com.sakura.bot.utils.MentionUtil;
@@ -26,7 +26,7 @@ public final class SakuraSayCommand extends Command {
         this.help = "say something with Sakura in a channel or with no arguments to list current talking channel.";
         this.arguments = "[<text>]";
         this.guildOnly = false;
-        this.requiredRoles = Roles.MODERATOR.getValues();
+        this.requiredRoles = Permissions.MODERATOR.getValues();
     }
 
     @Override
@@ -45,7 +45,7 @@ public final class SakuraSayCommand extends Command {
             .orElseThrow(() -> new IllegalArgumentException("You haven't added a text channel to talk in! \n "
                 + "Please use the **" + Config.PREFIX + "sakura_set_chan** command"));
         if (StringUtils.isNotEmpty(message)) {
-            if (!event.isFromType(ChannelType.TEXT)) {
+            if (event.isFromType(ChannelType.PRIVATE)) {
                 message = MentionUtil.addMentionsToMessage(event, message);
                 message = EmojiUtil.addEmojisToMessage(event.getJDA(), message);
             }

@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 
-import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Guild;
 
 public final class MentionUtil {
     private static final Pattern MENTION_PATTERN = Pattern.compile("@[A-z]*#(\\d{4})");
@@ -19,9 +19,13 @@ public final class MentionUtil {
         StringBuffer sb = new StringBuffer(message.length());
         while (m.find()) {
             String mentionedMember = m.group(0).replaceAll("@", "");
-            Member member = FinderUtil.findMembers(mentionedMember,
-                event.getJDA().getGuilds().get(0)).get(0);
-            m.appendReplacement(sb, Matcher.quoteReplacement(member.getAsMention()));
+            Guild guild = event.getJDA().getGuilds().stream()
+                .findFirst()
+                .orElseThrow(IllegalStateException::new);
+            FinderUtil.findMembers(mentionedMember, guild).stream()
+                .findFirst()
+                .ifPresent(member -> m.appendReplacement(sb,
+                    Matcher.quoteReplacement(member.getAsMention())));
         }
         m.appendTail(sb);
         return sb.toString();
