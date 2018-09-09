@@ -7,9 +7,10 @@ import org.apache.commons.lang3.StringUtils;
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.commands.thread.InactiveThreadTaskList;
+import com.sakura.bot.database.ThreadDbTable;
+import com.sakura.bot.quiz.QuizQuestion;
 import com.sakura.bot.utils.CategoryUtil;
 import com.sakura.bot.utils.EmojiUtil;
-import com.sakura.bot.database.ThreadDbTable;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -42,7 +43,7 @@ public class BotListener implements EventListener {
             TextChannelDeleteEvent deletedChannel = (TextChannelDeleteEvent)event;
             ThreadDbTable.deleteChannel(deletedChannel.getChannel().getIdLong());
         } else if (event instanceof GuildMemberJoinEvent) {
-            Quiz.perform(event, waiter);
+            QuizQuestion.perform(event, waiter);
         }
     }
 

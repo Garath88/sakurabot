@@ -15,7 +15,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 public class ChannelSpacingCommand extends Command {
     public ChannelSpacingCommand() {
         this.name = "channels";
-        this.help = "If you wish to have spaces in your channel names";
+        this.help = "If you wish to have spaces in your channel names.";
         this.arguments = "<space|dash>";
         this.requiredRoles = Permissions.MODERATOR.getValues();
         this.botPermissions = new Permission[] {

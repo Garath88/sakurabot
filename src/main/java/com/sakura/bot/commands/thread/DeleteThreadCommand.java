@@ -36,7 +36,7 @@ public class DeleteThreadCommand extends Command {
     protected void execute(CommandEvent event) {
         try {
             ArgumentChecker.checkArgsBySpace(event.getArgs(), 0);
-            ThreadInfo customChannelInfo = ThreadDbTable.getCustomChannelInfo(event.getMember().getUser());
+            ThreadInfo customChannelInfo = ThreadDbTable.getThreadInfo(event.getMember().getUser());
             event.reply(String.format("Listing created threads for %s: %n",
                 event.getMessage().getAuthor().getAsMention()));
             event.reply(customChannelInfo.getlistedChannels());

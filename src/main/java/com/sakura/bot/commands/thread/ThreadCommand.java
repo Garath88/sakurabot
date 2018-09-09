@@ -11,8 +11,11 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sakura.bot.configuration.Config;
 import com.sakura.bot.database.ThreadDbTable;
+import com.sakura.bot.database.ThreadInfo;
+import com.sakura.bot.quiz.QuizQuestion;
 import com.sakura.bot.utils.ArgumentChecker;
 import com.sakura.bot.utils.CategoryUtil;
+import com.sakura.bot.utils.RoleUtil;
 import com.sakura.bot.utils.WordBlacklist;
 
 import net.dv8tion.jda.core.Permission;
@@ -24,6 +27,7 @@ public class ThreadCommand extends Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreadCommand.class);
     private static final Pattern SYMBOL_PATTERN = Pattern.compile("[^\\w ]");
     private static final int MAX_AMOUNT_OF_THREADS = 10;
+    private static final int LURKER_MAX_THREAD_LIMIT = 1;
 
     public ThreadCommand() {
         this.name = "thread";
@@ -37,12 +41,20 @@ public class ThreadCommand extends Command {
     @Override
     protected void execute(CommandEvent event) {
         if (CategoryUtil.getThreadCategory(event.getJDA())
-            .getTextChannels().size() <= MAX_AMOUNT_OF_THREADS) {
+            .getTextChannels().size() <= MAX_AMOUNT_OF_THREADS && checkMaxThreadsPerLurker(event)) {
             addNewThread(event);
         } else {
             event.reply("Sorry maximum amount of threads reached!");
             event.reactError();
         }
+    }
+
+    private boolean checkMaxThreadsPerLurker(CommandEvent event) {
+        if (RoleUtil.getMemberRoles(event).isEmpty()) {
+            ThreadInfo threadInfo = ThreadDbTable.getThreadInfo(event.getAuthor());
+            return threadInfo.getThreadIds().size() < LURKER_MAX_THREAD_LIMIT;
+        }
+        return true;
     }
 
     private void addNewThread(CommandEvent event) {
@@ -103,8 +115,22 @@ public class ThreadCommand extends Command {
             ThreadDbTable.addThread(event.getMember()
                 .getUser(), threadChannel);
         }
+
+        threadChannel.createPermissionOverride(event.getGuild()
+            .getPublicRole())
+            .setDeny(Permission.CREATE_INSTANT_INVITE)
+            .queue();
+        setDenyForRole(threadChannel, event, QuizQuestion.QUIZ_ROLE);
+        setDenyForRole(threadChannel, event, QuizQuestion.RULES_ROLE);
+
         TextChannel threadTextChannel = sendTopicHasBeenSetMsg(threadChannel, topic);
         InactiveThreadTaskList.startInactivityTask(threadTextChannel);
+    }
+
+    private static void setDenyForRole(Channel threadChannel, CommandEvent event, String roleName) {
+        threadChannel.createPermissionOverride(RoleUtil.findRole(event.getGuild(), roleName))
+            .setDeny(Permission.MESSAGE_READ)
+            .queue();
     }
 
     private static TextChannel sendTopicHasBeenSetMsg(Channel threadChannel, String topic) {

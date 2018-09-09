@@ -4,7 +4,8 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.sakura.bot.Quiz;
+import com.sakura.bot.quiz.QuizResponse;
+import com.sakura.bot.utils.MessageUtil;
 
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
@@ -30,9 +31,10 @@ public class MemberCommand extends Command {
             .stream()
             .findFirst()
             .orElseThrow(IllegalStateException::new);
-        if (member.getRoles().isEmpty() && event.getChannelType().equals(ChannelType.PRIVATE)) {
+        if (!member.getRoles().isEmpty() && event.getChannelType().equals(ChannelType.PRIVATE)) {
             event.reply("- **Who gave me massive tits and an insane libido?**");
-            Quiz.waitForResponse(event.getAuthor(), event.getEvent(), waiter);
+            MessageUtil.waitForResponse(event.getAuthor(), guild, waiter,
+                new QuizResponse());
         }
     }
 }

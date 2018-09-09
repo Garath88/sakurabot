@@ -12,7 +12,7 @@ public class SakuraDMCommand extends Command {
 
     public SakuraDMCommand() {
         this.name = "sakura_dm";
-        this.help = "say something with Sakura in a DM channel";
+        this.help = "say something with Sakura in a DM channel.";
         this.arguments = "<text> followed by separator '|' <private channel id>.";
         this.guildOnly = false;
         this.ownerCommand = true;
