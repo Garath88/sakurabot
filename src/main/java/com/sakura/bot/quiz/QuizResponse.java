@@ -14,18 +14,13 @@ public class QuizResponse implements Response {
     public void apply(Guild guild, MessageReceivedEvent e, EventWaiter waiter) {
         User user = e.getAuthor();
         String response = e.getMessage().getContentRaw().toLowerCase();
-        if (response.toLowerCase().contains("oboro")) {
+        if (response.toLowerCase().contains("asagi")) {
             MessageUtil.sendMessage(user, EmojiUtil.getCustomEmoji(e.getJDA(), "sakura"));
             MessageUtil.sendMessage(user, "- Correct");
             RoleUtil.addRole(guild, user, QuizQuestion.RULES_ROLE);
             RoleUtil.removeRole(guild, user, QuizQuestion.QUIZ_ROLE);
 
             RulesQuestion.perform(user, guild, waiter);
-        } else if (response.contains("edwin black")) {
-            MessageUtil.sendMessage(user,
-                String.format("- Almost! But not what I was looking for, try again %s",
-                    EmojiUtil.getCustomEmoji(e.getJDA(), "sakurayum")));
-            MessageUtil.waitForResponse(user, guild, waiter, this);
         } else {
             MessageUtil.sendMessage(user,
                 String.format("- Aww.. wrong answer %s \n"

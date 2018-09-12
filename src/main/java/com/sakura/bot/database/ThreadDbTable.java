@@ -59,7 +59,7 @@ public final class ThreadDbTable {
         return Collections.emptyList();
     }
 
-    public static ThreadInfo getThreadInfo(User user) {
+    public static ThreadInfo getThreadInfoFromUser(User user) {
         String sql = String.format(
             "SELECT `name`, `id` FROM %s WHERE `user_id` = %s", DB_NAME, user.getId());
         ResultSet result = MariaDbConnector.executeSql(sql);

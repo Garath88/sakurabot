@@ -12,7 +12,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 
 public final class InactiveThreadCheckTask extends Task {
-    private static final int NO_CONTENT_EXPIRE_AFTER_MIN = 20;
+    private static final int NO_CONTENT_EXPIRE_AFTER_MIN = 5;
     private static final int EXPIRE_AFTER_MIN = 24 * 60;
     private static final int WARNING_BEFORE_MIN = 8 * 60;
     private static final int FINAL_WARNING_BEFORE_MIN = 60;
@@ -96,7 +96,7 @@ public final class InactiveThreadCheckTask extends Task {
         return null;
     }
 
-    private void deleteChannel() {
+    void deleteChannel() {
         InactiveThreadTaskList.getTaskListContainer()
             .cancelTask(this);
         thread.delete()
@@ -115,5 +115,9 @@ public final class InactiveThreadCheckTask extends Task {
         InactiveThreadTaskList.getTaskListContainer()
             .reScheduleTask(this,
                 newTask);
+    }
+
+    public TextChannel getThread() {
+        return thread;
     }
 }

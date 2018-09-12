@@ -26,7 +26,7 @@ import net.dv8tion.jda.core.entities.User;
 public class ThreadCommand extends Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreadCommand.class);
     private static final Pattern SYMBOL_PATTERN = Pattern.compile("[^\\w ]");
-    private static final int MAX_AMOUNT_OF_THREADS = 10;
+    private static final int MAX_AMOUNT_OF_THREADS = 12;
     private static final int LURKER_MAX_THREAD_LIMIT = 1;
 
     public ThreadCommand() {
@@ -51,7 +51,7 @@ public class ThreadCommand extends Command {
 
     private boolean checkMaxThreadsPerLurker(CommandEvent event) {
         if (RoleUtil.getMemberRoles(event).isEmpty()) {
-            ThreadInfo threadInfo = ThreadDbTable.getThreadInfo(event.getAuthor());
+            ThreadInfo threadInfo = ThreadDbTable.getThreadInfoFromUser(event.getAuthor());
             return threadInfo.getThreadIds().size() < LURKER_MAX_THREAD_LIMIT;
         }
         return true;
@@ -111,11 +111,6 @@ public class ThreadCommand extends Command {
     }
 
     private static void doTasks(Channel threadChannel, CommandEvent event, String topic, boolean storeInDatabase) {
-        if (storeInDatabase) {
-            ThreadDbTable.addThread(event.getMember()
-                .getUser(), threadChannel);
-        }
-
         threadChannel.createPermissionOverride(event.getGuild()
             .getPublicRole())
             .setDeny(Permission.CREATE_INSTANT_INVITE)
@@ -123,8 +118,12 @@ public class ThreadCommand extends Command {
         setDenyForRole(threadChannel, event, QuizQuestion.QUIZ_ROLE);
         setDenyForRole(threadChannel, event, QuizQuestion.RULES_ROLE);
 
-        TextChannel threadTextChannel = sendTopicHasBeenSetMsg(threadChannel, topic);
-        InactiveThreadTaskList.startInactivityTask(threadTextChannel);
+        if (storeInDatabase) {
+            ThreadDbTable.addThread(event.getMember()
+                .getUser(), threadChannel);
+            TextChannel threadTextChannel = sendTopicHasBeenSetMsg(threadChannel, topic);
+            InactiveThreadTaskList.startInactivityTask(threadTextChannel);
+        }
     }
 
     private static void setDenyForRole(Channel threadChannel, CommandEvent event, String roleName) {

@@ -13,10 +13,8 @@ import com.sakura.bot.configuration.Config;
 import com.sakura.bot.database.ThreadDbTable;
 import com.sakura.bot.database.ThreadInfo;
 import com.sakura.bot.utils.ArgumentChecker;
-import com.sakura.bot.utils.CategoryUtil;
 
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class DeleteThreadCommand extends Command {
@@ -36,18 +34,18 @@ public class DeleteThreadCommand extends Command {
     protected void execute(CommandEvent event) {
         try {
             ArgumentChecker.checkArgsBySpace(event.getArgs(), 0);
-            ThreadInfo customChannelInfo = ThreadDbTable.getThreadInfo(event.getMember().getUser());
+            ThreadInfo threadInfo = ThreadDbTable.getThreadInfoFromUser(event.getMember().getUser());
             event.reply(String.format("Listing created threads for %s: %n",
                 event.getMessage().getAuthor().getAsMention()));
-            event.reply(customChannelInfo.getlistedChannels());
-            if (!customChannelInfo.getThreadIds().isEmpty()) {
+            event.reply(threadInfo.getlistedChannels());
+            if (!threadInfo.getThreadIds().isEmpty()) {
                 event.reply("Please type in the number of the thread you want to delete.");
                 // wait for a response
                 waiter.waitForEvent(MessageReceivedEvent.class,
                     // make sure it's by the same user, and in the same channel
                     e -> e.getAuthor().equals(event.getAuthor()) && e.getChannel().equals(event.getChannel()),
                     // respond, inserting the name they listed into the response
-                    e -> deleteChannel(event, e, customChannelInfo),
+                    e -> deleteChannel(event, e, threadInfo),
                     // if the user takes more than a minute, time out
                     RESPONSE_TIMEOUT_IN_SEC, TimeUnit.SECONDS, () -> event.reply(String.format("Sorry %s, you took too long.",
                         event.getMessage().getAuthor().getAsMention())));
@@ -63,14 +61,14 @@ public class DeleteThreadCommand extends Command {
         String message = messageEvent.getMessage().getContentRaw();
         try {
             validateInput(message, customChannelInfo.getThreadIds().size());
-            Optional<TextChannel> threadToBeDeleted = getThreadChannel(event, customChannelInfo.getThreadIds()
+            Optional<InactiveThreadCheckTask> threadTaskToBeDeleted = getThreadTask(customChannelInfo.getThreadIds()
                 .get(Integer.valueOf(message) - 1));
-            if (threadToBeDeleted.isPresent()) {
-                TextChannel thread = threadToBeDeleted.get();
-                thread.delete()
-                    .queue();
+            if (threadTaskToBeDeleted.isPresent()) {
+                InactiveThreadCheckTask task = threadTaskToBeDeleted.get();
+                String channelName = task.getThread().getName();
+                task.deleteChannel();
                 event.reply(String.format("Successfully deleted thread: **%s**",
-                    thread.getName()));
+                    channelName));
             } else {
                 event.replyError("Could not delete channel!");
             }
@@ -93,10 +91,10 @@ public class DeleteThreadCommand extends Command {
             String.format("No thread found with ID #%s", args));
     }
 
-    private Optional<TextChannel> getThreadChannel(CommandEvent event, Long id) {
-        return CategoryUtil.getThreadCategory(event.getJDA())
-            .getTextChannels().stream()
-            .filter(chan -> chan.getIdLong() == id)
+    private Optional<InactiveThreadCheckTask> getThreadTask(Long id) {
+        return InactiveThreadTaskList.getTasks()
+            .stream()
+            .filter(task -> task.getThread().getIdLong() == id)
             .findFirst();
     }
 }

@@ -44,12 +44,13 @@ public final class SakuraSayCommand extends Command {
         TextChannel textChannel = SakuraChannelStorage.getChannel()
             .orElseThrow(() -> new IllegalArgumentException("You haven't added a text channel to talk in! \n "
                 + "Please use the **" + Config.PREFIX + "sakura_set_chan** command"));
-        if (StringUtils.isNotEmpty(message)) {
+        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+        if (StringUtils.isNotEmpty(message) || !attachments.isEmpty()) {
             if (event.isFromType(ChannelType.PRIVATE)) {
                 message = MentionUtil.addMentionsToMessage(event, message);
                 message = EmojiUtil.addEmojisToMessage(event.getJDA(), message);
             }
-            sendAttachments(event, textChannel);
+            sendAttachments(attachments, textChannel);
             sendMessage(message, textChannel);
         } else {
             event.reply(String.format("Currently talking in channel: **%s**",
@@ -57,8 +58,7 @@ public final class SakuraSayCommand extends Command {
         }
     }
 
-    private static void sendAttachments(CommandEvent event, TextChannel textChannel) {
-        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+    private static void sendAttachments(List<Message.Attachment> attachments, TextChannel textChannel) {
         attachments.forEach(attachment -> {
             try {
                 textChannel.sendFile(attachment.getInputStream(), attachment.getFileName())

@@ -14,8 +14,8 @@ public class SakuraThreadCommand extends Command {
 
     public SakuraThreadCommand() {
         this.name = "sakura_thread";
-        this.help = "Sakura creates a new thread.";
-        this.arguments = "<topic>";
+        this.help = "Sakura says text and creates a new thread with specified topic.";
+        this.arguments = "<text> followed by separator '|' <topic>";
         this.requiredRoles = Permissions.MODERATOR.getValues();
         this.guildOnly = false;
         this.botPermissions = new Permission[] {
@@ -26,19 +26,20 @@ public class SakuraThreadCommand extends Command {
     @Override
     protected void execute(CommandEvent event) {
         try {
-            String topic = event.getArgs();
-            ArgumentChecker.checkArgsBySpace(topic, 1);
-            createThread(event, topic);
+            String message = event.getArgs();
+            ArgumentChecker.checkArgsBySpace(message, 2);
+            String[] items = message.split("\\|");
+            createThread(event, items);
         } catch (IllegalArgumentException e) {
             event.replyWarning(e.getMessage());
         }
     }
 
-    private void createThread(CommandEvent event, String threadName) {
+    private void createThread(CommandEvent event, String[] message) {
         TextChannel textChannel = SakuraChannelStorage.getChannel()
             .orElseThrow(() -> new IllegalArgumentException("You haven't added a text channel to talk in! \n "
                 + "Please use the **" + Config.PREFIX + "sakura_set_chan** command"));
-        ThreadCommand.createNewThread(event, threadName, false);
-        SakuraSayCommand.sendMessage(String.format("**%s**", threadName), textChannel);
+        ThreadCommand.createNewThread(event, message[1].trim(), false);
+        SakuraSayCommand.sendMessage(String.format("%s", message[0]), textChannel);
     }
 }

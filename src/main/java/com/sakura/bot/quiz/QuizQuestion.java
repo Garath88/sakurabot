@@ -12,8 +12,11 @@ import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 
 public final class QuizQuestion {
+    public static final String QUIZ_QUESTION =
+        "- **Who do I \"fight to the death\" in order to free myself and my sister in Taimanin Asagi 1?**";
     public static final String QUIZ_ROLE = "Quiz";
     public static final String RULES_ROLE = "Rules";
+    public static final int QUIZ_TIMEOUT_IN_MIN = 10;
 
     private QuizQuestion() {
     }
@@ -31,11 +34,12 @@ public final class QuizQuestion {
                     .queueAfter(3, TimeUnit.SECONDS, msg2 -> pc.sendMessage(
                         "- Ready? ")
                         .queueAfter(3, TimeUnit.SECONDS, msg3 -> msg3.editMessage(
-                            "- Ready? Great, lets' start!")
+                            "- Ready? Great, let's start!")
                             .queueAfter(1, TimeUnit.SECONDS, msg5 -> pc.sendMessage(
-                                "- **Who gave me massive tits and an insane libido?**")
+                                QUIZ_QUESTION)
                                 .queueAfter(2, TimeUnit.SECONDS, msg6 ->
-                                    MessageUtil.waitForResponse(user, guild, waiter, quizResponse)))))));
+                                    MessageUtil.waitForResponse(user, guild, waiter,
+                                        quizResponse, QuizQuestion.QUIZ_TIMEOUT_IN_MIN)))))));
     }
 
     private static Guild getGuild(Event event) {
