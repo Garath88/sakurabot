@@ -11,7 +11,6 @@ import com.sakura.bot.commands.SpoilerCommand;
 import com.sakura.bot.commands.say.SakuraDMCommand;
 import com.sakura.bot.commands.say.SakuraSayCommand;
 import com.sakura.bot.commands.say.SakuraSetChanCommand;
-import com.sakura.bot.commands.say.SakuraThreadCommand;
 import com.sakura.bot.commands.system.PingCommand;
 import com.sakura.bot.commands.system.RebootCommand;
 import com.sakura.bot.commands.system.ShutdownCommand;
@@ -45,16 +44,15 @@ public class CommandList {
 
         commands.add(new PingCommand());
         commands.add(new ShutdownCommand());
+        commands.add(new RebootCommand());
         commands.add(new ThreadCommand());
         commands.add(new DeleteThreadCommand(waiter));
         commands.add(new SpoilerCommand());
         commands.add(new SakuraSetChanCommand());
         commands.add(new SakuraSayCommand());
-        commands.add(new SakuraThreadCommand());
-        commands.add(new MemberCommand(waiter));
         commands.add(new SakuraDMCommand());
-        commands.add(new RebootCommand());
         commands.add(new ChannelSpacingCommand());
+        commands.add(new MemberCommand(waiter));
     }
 
     public List<Command> getCommands() {

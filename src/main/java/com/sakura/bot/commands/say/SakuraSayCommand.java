@@ -10,33 +10,45 @@ import org.slf4j.LoggerFactory;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sakura.bot.Permissions;
+import com.sakura.bot.commands.thread.ThreadCommand;
 import com.sakura.bot.configuration.Config;
 import com.sakura.bot.utils.EmojiUtil;
 import com.sakura.bot.utils.MentionUtil;
 
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 
 public final class SakuraSayCommand extends Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(SakuraSayCommand.class);
+    private static final int MESSAGE_INDEX = 0;
+    private static final int THREAD_INDEX = 1;
+    private static final int MESSAGE_WITH_THREAD = 2;
 
     public SakuraSayCommand() {
         this.name = "sakura_say";
-        this.help = "say something with Sakura in a channel or with no arguments to list current talking channel.";
-        this.arguments = "[<text>]";
+        this.help = "say something with Sakura and optionally create a channel"
+            + " or with no arguments to list current talking channel.";
+        this.arguments = "[<text>] followed by separator '|' [<topic>]";
         this.guildOnly = false;
         this.requiredRoles = Permissions.MODERATOR.getValues();
+        this.botPermissions = new Permission[] {
+            Permission.MANAGE_CHANNEL
+        };
     }
 
     @Override
     protected void execute(CommandEvent event) {
         try {
-            String message = event.getArgs();
-            say(event, message);
+            String[] message = event.getArgs().split("\\|");
+            say(event, message[MESSAGE_INDEX]);
+            if (message.length == MESSAGE_WITH_THREAD) {
+                ThreadCommand.createNewThread(event, message[THREAD_INDEX].trim(),
+                    false);
+            }
         } catch (IllegalArgumentException e) {
             event.replyWarning(e.getMessage());
-
         }
     }
 
@@ -69,7 +81,7 @@ public final class SakuraSayCommand extends Command {
         });
     }
 
-    static void sendMessage(String message, TextChannel textChannel) {
+    private static void sendMessage(String message, TextChannel textChannel) {
         if (!StringUtils.isEmpty(message)) {
             message = "- " + message;
             textChannel.sendMessage(message)
