@@ -37,7 +37,6 @@ public class BotListener implements EventListener {
                 .getTextChannels();
             allThreads.forEach(InactiveThreadTaskList::startInactivityTask);
             ThreadDbTable.checkForThreadDbInconsistency(allThreads);
-
             setCustomEmojis(event.getJDA());
         } else if (event instanceof TextChannelDeleteEvent) {
             TextChannelDeleteEvent deletedChannel = (TextChannelDeleteEvent)event;
@@ -45,6 +44,18 @@ public class BotListener implements EventListener {
         } else if (event instanceof GuildMemberJoinEvent) {
             QuizQuestion.perform(event, waiter);
         }
+        /*else if (event instanceof PrivateMessageReceivedEvent) {
+            User user = ((PrivateMessageReceivedEvent)event).getAuthor();
+            if (!user.isBot()) {
+                User owner = GuildUtil.getGuild(event).getOwner().getUser();
+                if (!user.getId().equals(owner.getId())) {
+                    String message = ((PrivateMessageReceivedEvent)event).getMessage().getContentRaw();
+                    MessageUtil.sendMessage(owner,
+                        String.format("%s: %s", user.getAsMention(), message));
+                }
+            }
+        }
+        */
     }
 
     private void setCustomEmojis(JDA jda) {

@@ -3,6 +3,7 @@ package com.sakura.bot.quiz;
 import java.util.concurrent.TimeUnit;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.sakura.bot.utils.GuildUtil;
 import com.sakura.bot.utils.MessageUtil;
 import com.sakura.bot.utils.RoleUtil;
 
@@ -23,7 +24,7 @@ public final class QuizQuestion {
 
     public static void perform(Event event, EventWaiter waiter) {
         User user = ((GuildMemberJoinEvent)event).getMember().getUser();
-        Guild guild = getGuild(event);
+        Guild guild = GuildUtil.getGuild(event);
         RoleUtil.addRole(guild, user, QUIZ_ROLE);
         QuizResponse quizResponse = new QuizResponse();
         user.openPrivateChannel()
@@ -40,11 +41,5 @@ public final class QuizQuestion {
                                 .queueAfter(2, TimeUnit.SECONDS, msg6 ->
                                     MessageUtil.waitForResponse(user, guild, waiter,
                                         quizResponse, QuizQuestion.QUIZ_TIMEOUT_IN_MIN)))))));
-    }
-
-    private static Guild getGuild(Event event) {
-        return event.getJDA().getGuilds().stream()
-            .findFirst()
-            .orElseThrow(IllegalStateException::new);
     }
 }

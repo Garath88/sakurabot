@@ -6,6 +6,7 @@ import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.quiz.QuizQuestion;
 import com.sakura.bot.quiz.QuizResponse;
+import com.sakura.bot.utils.GuildUtil;
 import com.sakura.bot.utils.MessageUtil;
 
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -25,9 +26,7 @@ public class MemberCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        Guild guild = event.getJDA().getGuilds().stream()
-            .findFirst()
-            .orElseThrow(IllegalStateException::new);
+        Guild guild = GuildUtil.getGuild(event.getEvent());
         Member member = FinderUtil.findMembers(event.getAuthor().getId(), guild)
             .stream()
             .findFirst()

@@ -13,7 +13,7 @@ public class SakuraDMCommand extends Command {
     public SakuraDMCommand() {
         this.name = "sakura_dm";
         this.help = "say something with Sakura in a DM channel.";
-        this.arguments = "<text> followed by separator '|' <private channel id>.";
+        this.arguments = "<text> followed by separator '|' <user id>";
         this.guildOnly = false;
         this.ownerCommand = true;
     }
@@ -24,11 +24,13 @@ public class SakuraDMCommand extends Command {
             String message = event.getArgs();
             ArgumentChecker.checkArgsBySpace(message, 2);
             String[] items = message.split("\\|");
-            User user = FinderUtil.findUsers(items[1]
-                .replaceAll("\\s+", ""), event.getJDA()).stream()
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
-            MessageUtil.sendMessage(user, items[0]);
+            if (items.length == 2) {
+                User user = FinderUtil.findUsers(items[1]
+                    .replaceAll("\\s+", ""), event.getJDA()).stream()
+                    .findFirst()
+                    .orElseThrow(IllegalArgumentException::new);
+                MessageUtil.sendMessage(user, items[0]);
+            }
         } catch (IllegalArgumentException e) {
             event.replyWarning(e.getMessage());
         }
