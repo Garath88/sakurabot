@@ -1,39 +1,31 @@
 package com.sakura.bot.configuration;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sakura.bot.utils.TxtReader;
 
 public final class Config {
-    /**
-     * TODO
-     * Fix this ugly mess
-     **/
+    private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
+    private static final URL CONFIG_FILE = Config.class.getResource("/configuration/config.txt");
+    private static final TxtReader TXT_READER = new TxtReader(CONFIG_FILE);
     public static final String PREFIX = "+";
-    public static final String BOT_NAME = "Sakura";
-    private static final String TOKEN = initToken();
-    private static final String OWNER_ID = initOwnerId();
-
-    private static String initToken() {
+    private static final String TOKEN;
+    private static final String OWNER_ID;
+    static {
         List<String> list = Collections.emptyList();
         try {
-            list = TxtReader.readTxtFile("/configuration/config.txt");
+            list = TXT_READER.readTxtFile();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to init config", e);
         }
-        return list.get(0);
-    }
-
-    private static String initOwnerId() {
-        List<String> list = Collections.emptyList();
-        try {
-            list = TxtReader.readTxtFile("/configuration/config.txt");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return list.get(1);
+        TOKEN = list.get(0);
+        OWNER_ID = list.get(1);
     }
 
     private Config() {

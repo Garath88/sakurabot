@@ -56,18 +56,25 @@ public final class SakuraSayCommand extends Command {
         TextChannel textChannel = SakuraChannelStorage.getChannel()
             .orElseThrow(() -> new IllegalArgumentException("You haven't added a text channel to talk in! \n "
                 + "Please use the **" + Config.PREFIX + "sakura_set_chan** command"));
-        List<Message.Attachment> attachments = event.getMessage().getAttachments();
-        if (StringUtils.isNotEmpty(message) || !attachments.isEmpty()) {
-            if (event.isFromType(ChannelType.PRIVATE)) {
-                message = MentionUtil.addMentionsToMessage(event, message);
-                message = EmojiUtil.addEmojisToMessage(event.getJDA(), message);
+        if (textChannelExists(textChannel, event.getJDA().getTextChannels())) {
+            List<Message.Attachment> attachments = event.getMessage().getAttachments();
+            if (StringUtils.isNotEmpty(message) || !attachments.isEmpty()) {
+                if (event.isFromType(ChannelType.PRIVATE)) {
+                    message = MentionUtil.addMentionsToMessage(event, message);
+                    message = EmojiUtil.addEmojisToMessage(event.getJDA(), message);
+                }
+                sendAttachments(attachments, textChannel);
+                sendMessage(message, textChannel);
+            } else {
+                event.reply(String.format("Currently talking in channel: **%s**",
+                    textChannel.getName()));
             }
-            sendAttachments(attachments, textChannel);
-            sendMessage(message, textChannel);
-        } else {
-            event.reply(String.format("Currently talking in channel: **%s**",
-                textChannel.getName()));
         }
+    }
+
+    private boolean textChannelExists(TextChannel textChannel, List<TextChannel> textChannels) {
+        return textChannels.stream()
+            .anyMatch(chan -> chan.getId().equals(textChannel.getId()));
     }
 
     private static void sendAttachments(List<Message.Attachment> attachments, TextChannel textChannel) {

@@ -1,6 +1,10 @@
 package com.sakura.bot.utils;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,17 +15,35 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public final class WordBlacklist {
     private static final Logger LOGGER = LoggerFactory.getLogger(WordBlacklist.class);
-    private static final Set<String> BAD_WORDS = loadBadWords();
+    private static URL fileURL;
+    static {
+        try {
+            File target = new File(WordBlacklist.class.getProtectionDomain()
+                .getCodeSource()
+                .getLocation()
+                .toURI())
+                .getParentFile();
+            fileURL = new File(target, "blacklist.txt").toURI()
+                .toURL();
+        } catch (URISyntaxException | MalformedURLException e) {
+            LOGGER.error("Failed to init blacklist", e);
+        }
+    }
+    private static final TxtReader TXT_READER = new TxtReader(fileURL);
+    private static Set<String> badWords;
 
     private WordBlacklist() {
+        loadBadWords();
     }
 
-    private static Set<String> loadBadWords() {
+    private static void loadBadWords() {
         Set<String> list = new HashSet<>();
         try {
-            List<String> temp = TxtReader.readTxtFile("/blacklist.txt");
+            List<String> temp = TXT_READER.readTxtFile();
             for (String item : temp) {
                 if (!list.add(item)) {
                     String warn = String.format("duplicated blacklist word \"%s\" found!",
@@ -30,11 +52,12 @@ public final class WordBlacklist {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("Failed to load blacklist file");
+            LOGGER.error("Failed to load blacklist fileURL");
         }
-        return list;
+        badWords = list;
     }
 
+    @VisibleForTesting
     static boolean containsBadWord(String input) {
         if (StringUtils.isNotEmpty(searchBadWord(input))) {
             return true;
@@ -45,10 +68,18 @@ public final class WordBlacklist {
     }
 
     public static String searchBadWord(String input) {
+        try {
+            if (TXT_READER.isFileUpdated()) {
+                loadBadWords();
+                LOGGER.info("Reloaded blacklist");
+            }
+        } catch (IOException e) {
+            LOGGER.error("Failed to re-read blacklist", e);
+        }
         String haystack = input.toLowerCase()
             .replaceAll("\\s+", "");
         String badWord = "";
-        for (String needle : BAD_WORDS) {
+        for (String needle : badWords) {
             if (needle.contains("|")) {
                 String delimtedBadWord = needle.replaceAll("\\|", "");
                 String pattern = "\\b" + delimtedBadWord + "\\b";
