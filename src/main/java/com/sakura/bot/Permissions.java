@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 public enum Permissions {
-    MODERATOR("Kunoichi", "Taimanin"),
+    MODERATOR("NOMAD", "Taimanin"),
     FAN(Collections.singletonList(MODERATOR), "Hentai Master");
 
     private final List<String> values;
