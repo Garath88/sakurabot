@@ -7,6 +7,7 @@ import com.sakura.bot.utils.UriEncodingUtil;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.User;
 
 public class SpoilerCommand extends Command {
     public SpoilerCommand() {
@@ -28,9 +29,12 @@ public class SpoilerCommand extends Command {
             String uriEncodedText = UriEncodingUtil.encodeURIComponent(arguments);
             String description = String.format("[Hover to view](https://dummyimage.com/600x400/000/fff&text=%s \"%s\")",
                 uriEncodedText, arguments);
+            User user = event.getAuthor();
+            String footer = String.format("by %s#%s", user.getName(), user.getDiscriminator());
             EmbedBuilder builder = new EmbedBuilder();
             builder.setTitle("Spoiler")
-                .setDescription(description);
+                .setDescription(description)
+                .setFooter(footer, user.getAvatarUrl());
             event.reply(builder.build());
         } catch (IllegalArgumentException e) {
             event.replyWarning(e.getMessage());
