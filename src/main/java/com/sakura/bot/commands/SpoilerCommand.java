@@ -12,7 +12,7 @@ import net.dv8tion.jda.core.entities.User;
 public class SpoilerCommand extends Command {
     public SpoilerCommand() {
         this.name = "spoiler";
-        this.help = "If you want to say something that might be a spoiler *(text only)*.";
+        this.help = "If you want to say something that might be a spoiler *(text only)*";
         this.arguments = "<text>";
         this.botPermissions = new Permission[] {
             Permission.MESSAGE_MANAGE
