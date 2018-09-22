@@ -42,7 +42,7 @@ public final class RoleUtil {
     }
 
     public static List<Role> getMemberRoles(CommandEvent event) {
-        Guild guild = GuildUtil.getGuild(event.getEvent());
+        Guild guild = GuildUtil.getGuild(event.getJDA());
         Member member = FinderUtil.findMembers(event.getAuthor().getId(), guild)
             .stream()
             .findFirst()

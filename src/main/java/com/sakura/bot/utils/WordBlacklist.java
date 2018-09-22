@@ -71,10 +71,10 @@ public final class WordBlacklist {
         try {
             if (TXT_READER.isFileUpdated()) {
                 loadBadWords();
-                LOGGER.info("Reloaded blacklist");
+                LOGGER.info("Loaded blacklist");
             }
         } catch (IOException e) {
-            LOGGER.error("Failed to re-read blacklist", e);
+            LOGGER.error("Failed to read blacklist", e);
         }
         String haystack = input.toLowerCase()
             .replaceAll("\\s+", "");

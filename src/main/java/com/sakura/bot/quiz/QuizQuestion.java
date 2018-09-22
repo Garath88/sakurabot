@@ -24,7 +24,7 @@ public final class QuizQuestion {
 
     public static void perform(Event event, EventWaiter waiter) {
         User user = ((GuildMemberJoinEvent)event).getMember().getUser();
-        Guild guild = GuildUtil.getGuild(event);
+        Guild guild = GuildUtil.getGuild(event.getJDA());
         RoleUtil.addRole(guild, user, QUIZ_ROLE);
         QuizResponse quizResponse = new QuizResponse();
         user.openPrivateChannel()

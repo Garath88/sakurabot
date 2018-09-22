@@ -41,7 +41,7 @@ public class ThreadCommand extends Command {
     @Override
     protected void execute(CommandEvent event) {
         if (CategoryUtil.getThreadCategory(event.getJDA())
-            .getTextChannels().size() <= MAX_AMOUNT_OF_THREADS && checkMaxThreadsPerLurker(event)) {
+            .getTextChannels().size() < MAX_AMOUNT_OF_THREADS && checkMaxThreadsPerLurker(event)) {
             addNewThread(event);
         } else {
             event.reply("Sorry maximum amount of threads reached!");

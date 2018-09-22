@@ -19,7 +19,7 @@ public final class MentionUtil {
         StringBuffer sb = new StringBuffer(message.length());
         while (m.find()) {
             String mentionedMember = m.group(0).replaceAll("@", "");
-            Guild guild = GuildUtil.getGuild(event.getEvent());
+            Guild guild = GuildUtil.getGuild(event.getJDA());
             FinderUtil.findMembers(mentionedMember, guild).stream()
                 .findFirst()
                 .ifPresent(member -> m.appendReplacement(sb,

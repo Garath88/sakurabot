@@ -26,7 +26,7 @@ public class MemberCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        Guild guild = GuildUtil.getGuild(event.getEvent());
+        Guild guild = GuildUtil.getGuild(event.getJDA());
         Member member = FinderUtil.findMembers(event.getAuthor().getId(), guild)
             .stream()
             .findFirst()
