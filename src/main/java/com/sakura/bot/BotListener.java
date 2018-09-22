@@ -19,7 +19,6 @@ import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.core.events.message.GenericMessageEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
@@ -76,10 +75,12 @@ public class BotListener implements EventListener {
     }
 
     private void sortThreadsByPostCount(Event event) {
+        /*
         JDA jda = event.getJDA();
         TextChannel textChan = ((GenericMessageEvent)event).getTextChannel();
         if (CategoryUtil.getThreadCategory(jda).getTextChannels().contains(textChan)) {
             SortThreads.sortByPostCount(jda);
         }
+        */
     }
 }

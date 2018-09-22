@@ -91,12 +91,12 @@ public final class ThreadDbTable {
         executeQuery(sql);
     }
 
-    public static void checkForThreadDbInconsistency(List<TextChannel> allCustomChannels) {
-        List<Long> allCustomChannelsById = allCustomChannels.stream()
+    public static void checkForThreadDbInconsistency(List<TextChannel> threads) {
+        List<Long> allThreadsById = threads.stream()
             .map(ISnowflake::getIdLong)
             .collect(Collectors.toList());
         List<Long> deletedChannels = ThreadDbTable.getAllChannelIds().stream()
-            .filter(chanId -> !allCustomChannelsById
+            .filter(chanId -> !allThreadsById
                 .contains(chanId))
             .collect(Collectors.toList());
         deletedChannels.forEach(ThreadDbTable::deleteChannel);
