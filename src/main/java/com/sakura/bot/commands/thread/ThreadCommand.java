@@ -123,6 +123,10 @@ public class ThreadCommand extends Command {
                 .getUser(), threadChannel);
             TextChannel threadTextChannel = sendTopicHasBeenSetMsg(threadChannel, topic);
             InactiveThreadChecker.startOrCancelInactivityTaskIfNotTopX(threadTextChannel);
+        } else { //Sakura thread
+            ThreadDbTable.addThread(event.getSelfUser(), threadChannel);
+            ThreadDbTable.storePostCount(9999,
+                threadChannel.getIdLong());
         }
     }
 
