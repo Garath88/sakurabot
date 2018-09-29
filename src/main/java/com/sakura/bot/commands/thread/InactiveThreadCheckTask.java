@@ -17,9 +17,10 @@ public final class InactiveThreadCheckTask extends Task {
     private static final int WARNING_BEFORE_MIN = 8 * 60;
     private static final int FINAL_WARNING_BEFORE_MIN = 60;
     private final TextChannel thread;
+    private boolean hasWarned;
 
     InactiveThreadCheckTask(TextChannel thread) {
-        super((long)(NO_CONTENT_EXPIRE_AFTER_MIN / 1.5), 0);
+        super((long)(NO_CONTENT_EXPIRE_AFTER_MIN / 1.5), (long)(NO_CONTENT_EXPIRE_AFTER_MIN / 1.5));
         this.thread = thread;
     }
 
@@ -27,30 +28,36 @@ public final class InactiveThreadCheckTask extends Task {
         long loopTime, long delay) {
         super(loopTime, delay);
         this.thread = thread;
+        hasWarned = true;
     }
 
     @Override
     public void execute() {
-        if (thread.getJDA().getTextChannels().stream()
-            .anyMatch(chan -> chan.getId().equals(thread.getId())
-                && chan.hasLatestMessage())) {
-            checkIfChannelIsInactive();
-        }
+        checkIfChannelIsInactive();
     }
 
     private void checkIfChannelIsInactive() {
         long timeLeft = getExpirationTimeInMinutes();
         if (timeLeft <= 0) {
-            deleteChannel();
+            if (!hasWarned) {
+                sendInactivityMsg(FINAL_WARNING_BEFORE_MIN);
+                scheduleDelete(FINAL_WARNING_BEFORE_MIN, 0);
+            } else {
+                deleteChannel();
+            }
         } else if (timeLeft <= FINAL_WARNING_BEFORE_MIN) {
-            thread.sendMessage(createInactivityMessage())
-                .queue();
+            sendInactivityMsg(getExpirationTimeInMinutes());
             scheduleDelete(timeLeft, 0);
         } else if (timeLeft <= WARNING_BEFORE_MIN) {
-            thread.sendMessage(createInactivityMessage())
-                .queue();
+            sendInactivityMsg(getExpirationTimeInMinutes());
             scheduleDelete(timeLeft, FINAL_WARNING_BEFORE_MIN);
         }
+    }
+
+    private void sendInactivityMsg(long expirationTime) {
+        String message = createInactivityMessage(expirationTime);
+        thread.sendMessage(message)
+            .queue();
     }
 
     private void scheduleDelete(long timeLeft, long warningTime) {
@@ -97,14 +104,13 @@ public final class InactiveThreadCheckTask extends Task {
     }
 
     void deleteChannel() {
-        InactiveThreadTaskList.getTaskListContainer()
+        InactiveThreadChecker.getTaskListContainer()
             .cancelTask(this);
         thread.delete()
             .queue();
     }
 
-    private String createInactivityMessage() {
-        long expirationTime = getExpirationTimeInMinutes();
+    private String createInactivityMessage(long expirationTime) {
         long hours = expirationTime / 60;
         long minutes = expirationTime % 60;
         return String.format("This thread has been marked as **inactive** "
@@ -112,7 +118,7 @@ public final class InactiveThreadCheckTask extends Task {
     }
 
     private void reScheduleTask(Task newTask) {
-        InactiveThreadTaskList.getTaskListContainer()
+        InactiveThreadChecker.getTaskListContainer()
             .reScheduleTask(this,
                 newTask);
     }

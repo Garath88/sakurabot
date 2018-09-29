@@ -13,8 +13,11 @@ import com.sakura.bot.configuration.Config;
 import com.sakura.bot.database.ThreadDbTable;
 import com.sakura.bot.database.ThreadInfo;
 import com.sakura.bot.utils.ArgumentChecker;
+import com.sakura.bot.utils.CategoryUtil;
 
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class DeleteThreadCommand extends Command {
@@ -45,7 +48,7 @@ public class DeleteThreadCommand extends Command {
                     // make sure it's by the same user, and in the same channel
                     e -> e.getAuthor().equals(event.getAuthor()) && e.getChannel().equals(event.getChannel()),
                     // respond, inserting the name they listed into the response
-                    e -> deleteChannel(event, e, threadInfo),
+                    e -> deleteChannel(event, e.getMessage().getContentRaw(), threadInfo),
                     // if the user takes more than a minute, time out
                     RESPONSE_TIMEOUT_IN_SEC, TimeUnit.SECONDS, () -> event.reply(String.format("Sorry %s, you took too long.",
                         event.getMessage().getAuthor().getAsMention())));
@@ -55,30 +58,44 @@ public class DeleteThreadCommand extends Command {
         }
     }
 
-    private void deleteChannel(CommandEvent event, MessageReceivedEvent messageEvent,
-        ThreadInfo customChannelInfo) {
-
-        String message = messageEvent.getMessage().getContentRaw();
+    private void deleteChannel(CommandEvent event, String msgWithNumber,
+        ThreadInfo threadInfo) {
         try {
-            validateInput(message, customChannelInfo.getThreadIds().size());
-            Optional<InactiveThreadCheckTask> threadTaskToBeDeleted = getThreadTask(customChannelInfo.getThreadIds()
-                .get(Integer.valueOf(message) - 1));
-            if (threadTaskToBeDeleted.isPresent()) {
-                InactiveThreadCheckTask task = threadTaskToBeDeleted.get();
-                String channelName = task.getThread().getName();
-                task.deleteChannel();
-                event.reply(String.format("Successfully deleted thread: **%s**",
-                    channelName));
-            } else {
-                event.replyError("Could not delete channel!");
-            }
-        } catch (IllegalArgumentException e) {
+            validateInput(msgWithNumber, threadInfo.getThreadIds().size());
+            TextChannel threadToDelete =
+                getThreadToDelete(event.getJDA(), msgWithNumber, threadInfo);
+            handleDeletionOfThread(threadToDelete);
+            String channelName = threadToDelete.getName();
+            event.reply(String.format("Successfully deleted thread: **%s**",
+                channelName));
+        } catch (IllegalArgumentException | IllegalStateException e) {
             event.replyWarning(e.getMessage() + "\n" +
                 String.format("%s Please try running the %s command again",
                     event.getMessage().getAuthor().getAsMention(),
                     Config.PREFIX + name));
         }
 
+    }
+
+    private void handleDeletionOfThread(TextChannel threadToDelete) {
+        Optional<InactiveThreadCheckTask> threadTaskToBeDeleted =
+            InactiveThreadChecker.getThreadTask(threadToDelete.getIdLong());
+        if (threadTaskToBeDeleted.isPresent()) {
+            InactiveThreadCheckTask task = threadTaskToBeDeleted.get();
+            task.deleteChannel();
+        } else {
+            threadToDelete.delete()
+                .queue();
+        }
+    }
+
+    private TextChannel getThreadToDelete(JDA jda, String number, ThreadInfo threadInfo) {
+        long threadId = threadInfo.getThreadIds()
+            .get(Integer.valueOf(number) - 1);
+        return CategoryUtil.getThreadCategory(jda).getTextChannels().stream()
+            .filter(thread -> thread.getIdLong() == threadId)
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Could not find thread to delete!"));
     }
 
     private void validateInput(String args, int numberOfchannels) {
@@ -89,12 +106,5 @@ public class DeleteThreadCommand extends Command {
             "ID must be greater than zero!");
         Preconditions.checkArgument(Integer.valueOf(args) <= numberOfchannels,
             String.format("No thread found with ID #%s", args));
-    }
-
-    private Optional<InactiveThreadCheckTask> getThreadTask(Long id) {
-        return InactiveThreadTaskList.getTasks()
-            .stream()
-            .filter(task -> task.getThread().getIdLong() == id)
-            .findFirst();
     }
 }

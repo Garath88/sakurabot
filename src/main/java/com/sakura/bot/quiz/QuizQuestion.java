@@ -24,22 +24,24 @@ public final class QuizQuestion {
 
     public static void perform(Event event, EventWaiter waiter) {
         User user = ((GuildMemberJoinEvent)event).getMember().getUser();
-        Guild guild = GuildUtil.getGuild(event.getJDA());
-        RoleUtil.addRole(guild, user, QUIZ_ROLE);
-        QuizResponse quizResponse = new QuizResponse();
-        user.openPrivateChannel()
-            .queue(pc -> pc.sendMessage(
-                "*Yohoo~* it's Sakura! :heart:")
-                .queue(msg -> pc.sendMessage(
-                    "- In order to gain access to this lewd server you must first answer **one** simple **question!**")
-                    .queueAfter(3, TimeUnit.SECONDS, msg2 -> pc.sendMessage(
-                        "- Ready? ")
-                        .queueAfter(3, TimeUnit.SECONDS, msg3 -> msg3.editMessage(
-                            "- Ready? Great, let's start!")
-                            .queueAfter(1, TimeUnit.SECONDS, msg5 -> pc.sendMessage(
-                                QUIZ_QUESTION)
-                                .queueAfter(2, TimeUnit.SECONDS, msg6 ->
-                                    MessageUtil.waitForResponse(user, guild, waiter,
-                                        quizResponse, QuizQuestion.QUIZ_TIMEOUT_IN_MIN)))))));
+        if (!user.isBot()) {
+            Guild guild = GuildUtil.getGuild(event.getJDA());
+            RoleUtil.addRole(guild, user, QUIZ_ROLE);
+            QuizResponse quizResponse = new QuizResponse();
+            user.openPrivateChannel()
+                .queue(pc -> pc.sendMessage(
+                    "*Yohoo~* it's Sakura! :heart:")
+                    .queue(msg -> pc.sendMessage(
+                        "- In order to gain access to this lewd server you must first answer **one** simple **question!**")
+                        .queueAfter(3, TimeUnit.SECONDS, msg2 -> pc.sendMessage(
+                            "- Ready? ")
+                            .queueAfter(3, TimeUnit.SECONDS, msg3 -> msg3.editMessage(
+                                "- Ready? Great, let's start!")
+                                .queueAfter(1, TimeUnit.SECONDS, msg5 -> pc.sendMessage(
+                                    QUIZ_QUESTION)
+                                    .queueAfter(2, TimeUnit.SECONDS, msg6 ->
+                                        MessageUtil.waitForResponse(user, guild, waiter,
+                                            quizResponse, QuizQuestion.QUIZ_TIMEOUT_IN_MIN)))))));
+        }
     }
 }

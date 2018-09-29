@@ -1,18 +1,24 @@
 package com.sakura.bot.utils;
 
-import java.util.Arrays;
+import org.apache.commons.lang3.StringUtils;
 
 public final class ArgumentChecker {
     private ArgumentChecker() {
     }
 
     public static void checkArgsBySpace(String arguments, int requiredArguments) {
-        String[] items = arguments.split("\\s+");
-        if (requiredArguments == 0 && !Arrays.toString(items).equals("[]")
-            && items.length != requiredArguments) {
+        if (getNumberOfArguments(arguments) != requiredArguments) {
             throw new IllegalArgumentException(String.format("Wrong number of arguments, expected: %d",
                 requiredArguments));
         }
+    }
+
+    private static int getNumberOfArguments(String arguments) {
+        String[] items = arguments.split("\\s+");
+        if (StringUtils.isEmpty(arguments)) {
+            return 0;
+        }
+        return items.length;
     }
 
     public static void checkIfArgsAreNotEmpty(String arguments) {

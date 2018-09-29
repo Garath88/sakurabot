@@ -24,7 +24,7 @@ public class SakuraDMCommand extends Command {
             String message = event.getArgs();
             ArgumentChecker.checkArgsBySpace(message, 2);
             String[] items = message.split("\\|");
-            if (items.length == 2) {
+            if (items.length == 2) { //*TODO: FIX ERROR HANDLING
                 User user = FinderUtil.findUsers(items[1]
                     .replaceAll("\\s+", ""), event.getJDA()).stream()
                     .findFirst()

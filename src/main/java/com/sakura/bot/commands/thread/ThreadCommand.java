@@ -122,7 +122,7 @@ public class ThreadCommand extends Command {
             ThreadDbTable.addThread(event.getMember()
                 .getUser(), threadChannel);
             TextChannel threadTextChannel = sendTopicHasBeenSetMsg(threadChannel, topic);
-            InactiveThreadTaskList.startInactivityTask(threadTextChannel);
+            InactiveThreadChecker.startOrCancelInactivityTaskIfNotTopX(threadTextChannel);
         }
     }
 
@@ -135,7 +135,8 @@ public class ThreadCommand extends Command {
     private static TextChannel sendTopicHasBeenSetMsg(Channel threadChannel, String topic) {
         TextChannel threadTextChannel = threadChannel.getGuild().getTextChannels().stream()
             .filter(channel -> channel.getId().equals(threadChannel.getId()))
-            .findFirst().orElseThrow(() -> {
+            .findFirst()
+            .orElseThrow(() -> {
                 String errorMsg = String.format(
                     "Something went really wrong, could not store created %s thread", topic);
                 LOGGER.error(errorMsg);
@@ -143,7 +144,12 @@ public class ThreadCommand extends Command {
             });
         threadTextChannel.sendMessage("The topic has now been set to: " +
             String.format("**%s**", topic))
-            .queue();
+            .queue(msg -> {
+                long threadId = threadChannel.getIdLong();
+                ThreadDbTable.storeLatestMsgId(
+                    msg.getIdLong(), threadId);
+                ThreadDbTable.storePostCount(0, threadId);
+            });
         return threadTextChannel;
     }
 }
