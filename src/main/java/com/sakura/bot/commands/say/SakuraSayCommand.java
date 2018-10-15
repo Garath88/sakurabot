@@ -24,14 +24,14 @@ public final class SakuraSayCommand extends Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(SakuraSayCommand.class);
     private static final int MESSAGE_INDEX = 0;
     private static final int THREAD_INDEX = 1;
-    private static final int MESSAGE_WITH_THREAD = 2;
+    private static final int MESSAGE_WITH_CHANNEL_ID = 2;
 
     public SakuraSayCommand() {
         this.name = "sakura_say";
         this.help = "say something with Sakura and optionally create a channel"
             + " or with no arguments to list current talking channel.";
         this.arguments = "[<text>] followed by separator '|' [<topic>]";
-        this.guildOnly = false;
+        this.guildOnly = true;
         this.requiredRoles = Permissions.MODERATOR.getValues();
         this.botPermissions = new Permission[] {
             Permission.MANAGE_CHANNEL
@@ -43,7 +43,7 @@ public final class SakuraSayCommand extends Command {
         try {
             String[] message = event.getArgs().split("\\|");
             say(event, message[MESSAGE_INDEX]);
-            if (message.length == MESSAGE_WITH_THREAD) {
+            if (message.length == MESSAGE_WITH_CHANNEL_ID) {
                 ThreadCommand.createNewThread(event, message[THREAD_INDEX].trim(),
                     false);
             }

@@ -6,29 +6,35 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.LoggerFactory;
+
 import com.sakura.bot.tasks.Task;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 
 public final class InactiveThreadCheckTask extends Task {
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(InactiveThreadCheckTask.class);
     private static final int NO_CONTENT_EXPIRE_AFTER_MIN = 5;
     private static final int EXPIRE_AFTER_MIN = 24 * 60;
     private static final int WARNING_BEFORE_MIN = 8 * 60;
     private static final int FINAL_WARNING_BEFORE_MIN = 60;
     private final TextChannel thread;
+    private OffsetDateTime deleteTime = null;
     private boolean hasWarned;
 
     InactiveThreadCheckTask(TextChannel thread) {
-        super((long)(NO_CONTENT_EXPIRE_AFTER_MIN / 1.5), (long)(NO_CONTENT_EXPIRE_AFTER_MIN / 1.5));
+        super((long)(NO_CONTENT_EXPIRE_AFTER_MIN / 1.5),
+            (long)(NO_CONTENT_EXPIRE_AFTER_MIN / 1.5));
         this.thread = thread;
     }
 
     private InactiveThreadCheckTask(TextChannel thread,
-        long loopTime, long delay) {
+        long loopTime, long delay, OffsetDateTime deleteTime) {
         super(loopTime, delay);
         this.thread = thread;
         hasWarned = true;
+        this.deleteTime = deleteTime;
     }
 
     @Override
@@ -38,19 +44,25 @@ public final class InactiveThreadCheckTask extends Task {
 
     private void checkIfChannelIsInactive() {
         long timeLeft = getExpirationTimeInMinutes();
+        String debug = String.format("Thread: %s - timeleft: %s",
+            thread.getName(), timeLeft);
+        LOGGER.debug(debug);
         if (timeLeft <= 0) {
             if (!hasWarned) {
-                sendInactivityMsg(FINAL_WARNING_BEFORE_MIN);
-                scheduleDelete(FINAL_WARNING_BEFORE_MIN, 0);
+                deleteTime = OffsetDateTime.now(ZoneOffset.UTC).plusMinutes(EXPIRE_AFTER_MIN);
+                sendInactivityMsg(EXPIRE_AFTER_MIN);
+                scheduleDelete(WARNING_BEFORE_MIN, 1, deleteTime);
             } else {
                 deleteChannel();
             }
         } else if (timeLeft <= FINAL_WARNING_BEFORE_MIN) {
             sendInactivityMsg(getExpirationTimeInMinutes());
-            scheduleDelete(timeLeft, 0);
+            scheduleDelete(timeLeft, 0, deleteTime);
         } else if (timeLeft <= WARNING_BEFORE_MIN) {
             sendInactivityMsg(getExpirationTimeInMinutes());
-            scheduleDelete(timeLeft, FINAL_WARNING_BEFORE_MIN);
+            scheduleDelete(timeLeft, FINAL_WARNING_BEFORE_MIN, deleteTime);
+        } else {
+            scheduleDelete(timeLeft, WARNING_BEFORE_MIN, deleteTime);
         }
     }
 
@@ -60,9 +72,9 @@ public final class InactiveThreadCheckTask extends Task {
             .queue();
     }
 
-    private void scheduleDelete(long timeLeft, long warningTime) {
+    private void scheduleDelete(long timeLeft, long warningTime, OffsetDateTime deleteTime) {
         reScheduleTask(new InactiveThreadCheckTask(thread,
-            1, timeLeft - warningTime));
+            1, timeLeft - warningTime, deleteTime));
     }
 
     private List<Message> getLatestMessages() {
@@ -72,12 +84,20 @@ public final class InactiveThreadCheckTask extends Task {
     }
 
     private long getExpirationTimeInMinutes() {
-        List<Message> latestMessages = getLatestMessages();
-        OffsetDateTime creationTime = getLatestMessageTime(latestMessages);
         OffsetDateTime currentTime = OffsetDateTime.now(ZoneOffset.UTC);
-        if (creationTime != null) {
-            return currentTime.until(creationTime.plusMinutes(EXPIRE_AFTER_MIN),
+
+        List<Message> latestMessages = getLatestMessages();
+        OffsetDateTime latestMessageTime = getLatestMessageTime(latestMessages);
+
+        if (latestMessageTime != null) {
+            long timeLeft = currentTime.until(latestMessageTime.plusMinutes(EXPIRE_AFTER_MIN),
                 ChronoUnit.MINUTES);
+            if (timeLeft > 0 || deleteTime == null) {
+                return timeLeft;
+            } else {
+                return currentTime.until(deleteTime,
+                    ChronoUnit.MINUTES);
+            }
         } else {
             return currentTime.until(thread.getCreationTime()
                     .plusMinutes(NO_CONTENT_EXPIRE_AFTER_MIN),
@@ -106,8 +126,10 @@ public final class InactiveThreadCheckTask extends Task {
     void deleteChannel() {
         InactiveThreadChecker.getTaskListContainer()
             .cancelTask(this);
-        thread.delete()
-            .queue();
+        if (InactiveThreadChecker.shouldNotBeSaved(thread)) {
+            thread.delete()
+                .queue();
+        }
     }
 
     private String createInactivityMessage(long expirationTime) {

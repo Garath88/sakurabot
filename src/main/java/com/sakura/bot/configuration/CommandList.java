@@ -9,6 +9,7 @@ import com.sakura.bot.commands.ChannelSpacingCommand;
 import com.sakura.bot.commands.MemberCommand;
 import com.sakura.bot.commands.SpoilerCommand;
 import com.sakura.bot.commands.say.SakuraDMCommand;
+import com.sakura.bot.commands.say.SakuraReadDMHistory;
 import com.sakura.bot.commands.say.SakuraSayCommand;
 import com.sakura.bot.commands.say.SakuraSetChanCommand;
 import com.sakura.bot.commands.system.PingCommand;
@@ -51,6 +52,7 @@ public class CommandList {
         commands.add(new SakuraSetChanCommand());
         commands.add(new SakuraSayCommand());
         commands.add(new SakuraDMCommand());
+        commands.add(new SakuraReadDMHistory());
         commands.add(new ChannelSpacingCommand());
         commands.add(new MemberCommand(waiter));
     }

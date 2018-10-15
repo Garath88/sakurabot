@@ -21,17 +21,18 @@ import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 
 public final class ThreadDbTable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreadDbTable.class);
-    private static final String DB_NAME = "threads";
+    private static final String TABLE_NAME = "threads";
     private static final String QUERY_RESULT_ERROR = "Failed to close or get result from query";
+    private static final String DB_NAME = MariaDbConnector.getConfig().getDbName();
 
     private ThreadDbTable() {
     }
 
     public static void addThread(User user, Channel thread) {
-        String sql = String.format("INSERT INTO `sakurabot`.`%s` "
-                + "(`user`,`user_id`, `name`, `id`) "
+        String sql = String.format("INSERT INTO %s.%s "
+                + "(user,user_id, name, id) "
                 + "VALUES ('%s', '%s', '%s', '%s')",
-            DB_NAME, user.getName(), user.getId(), thread.getName(), thread.getId());
+            DB_NAME, TABLE_NAME, user.getName(), user.getId(), thread.getName(), thread.getId());
         executeQuery(sql);
     }
 
@@ -47,7 +48,8 @@ public final class ThreadDbTable {
     }
 
     private static List<Long> getAllChannelIds() {
-        String sql = String.format("SELECT `id` FROM %s", DB_NAME);
+        String sql = String.format("SELECT id FROM %s.%s",
+            DB_NAME, TABLE_NAME);
         ResultSet result = MariaDbConnector.executeSql(sql);
         List<Long> channelIds = new ArrayList<>();
         if (result != null) {
@@ -66,7 +68,8 @@ public final class ThreadDbTable {
 
     public static ThreadInfo getThreadInfoFromUser(User user) {
         String sql = String.format(
-            "SELECT `name`, `id` FROM %s WHERE `user_id` = %s", DB_NAME, user.getId());
+            "SELECT name, id FROM %s.%s WHERE user_id = %s",
+            DB_NAME, TABLE_NAME, user.getId());
         ResultSet result = MariaDbConnector.executeSql(sql);
         List<String> outprint = new ArrayList<>();
         List<Long> channelIds = new ArrayList<>();
@@ -75,7 +78,7 @@ public final class ThreadDbTable {
             try {
                 while (result.next()) {
                     count++;
-                    outprint.add((String.format("`[%d]`  **%-2s**",
+                    outprint.add((String.format("[%d]  **%-2s**",
                         count, result.getString("name"))));
                     channelIds.add(result.getLong("id"));
                 }
@@ -92,7 +95,7 @@ public final class ThreadDbTable {
 
     public static void deleteChannel(Long id) {
         String sql = String.format(
-            "DELETE FROM %s WHERE `id` = %s", DB_NAME, id);
+            "DELETE FROM %s.%s WHERE id = %s", DB_NAME, TABLE_NAME, id);
         executeQuery(sql);
     }
 
@@ -111,8 +114,10 @@ public final class ThreadDbTable {
     private static void checkStoredLatestMessage(TextChannel thread) {
         long messageId = getLatestMsgId(thread.getIdLong());
         try {
-            thread.getMessageById(messageId)
-                .complete();
+            if (messageId != 0) {
+                thread.getMessageById(messageId)
+                    .complete();
+            }
         } catch (ErrorResponseException e) {
             updateLatestMsgInDbIfDeleted(messageId, thread);
         }
@@ -138,16 +143,16 @@ public final class ThreadDbTable {
     }
 
     public static void storeLatestMsgId(long messageId, long threadId) {
-        String sql = String.format("UPDATE `sakurabot`.`%s` "
+        String sql = String.format("UPDATE %s.%s "
                 + "SET latest_message_id = %s WHERE id = %s ",
-            DB_NAME, messageId, threadId);
+            DB_NAME, TABLE_NAME, messageId, threadId);
         executeQuery(sql);
     }
 
     public static long getLatestMsgId(long threadId) {
         String sql = String.format(
-            "SELECT latest_message_id FROM sakurabot.threads WHERE id = %s",
-            threadId);
+            "SELECT latest_message_id FROM %s.%s WHERE id = %s",
+            DB_NAME, TABLE_NAME, threadId);
         ResultSet result = MariaDbConnector.executeSql(sql);
         long latestMessageId = 0;
         if (result != null) {
@@ -171,8 +176,8 @@ public final class ThreadDbTable {
 
     private static int getPostCount(long threadId) {
         String sql = String.format(
-            "SELECT post_count FROM sakurabot.threads WHERE id = %s",
-            threadId);
+            "SELECT post_count FROM %s.%s WHERE id = %s",
+            DB_NAME, TABLE_NAME, threadId);
         ResultSet result = MariaDbConnector.executeSql(sql);
         int postCount = 0;
         if (result != null) {
@@ -190,9 +195,9 @@ public final class ThreadDbTable {
     }
 
     public static void storePostCount(int postCount, long threadId) {
-        String sql = String.format("UPDATE `sakurabot`.`%s` "
+        String sql = String.format("UPDATE %s.%s "
                 + "SET post_count = %s WHERE id = %s ",
-            DB_NAME, postCount, threadId);
+            DB_NAME, TABLE_NAME, postCount, threadId);
         executeQuery(sql);
     }
 }

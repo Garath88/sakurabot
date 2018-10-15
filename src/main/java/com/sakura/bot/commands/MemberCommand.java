@@ -26,15 +26,27 @@ public class MemberCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        Guild guild = GuildUtil.getGuild(event.getJDA());
-        Member member = FinderUtil.findMembers(event.getAuthor().getId(), guild)
-            .stream()
-            .findFirst()
-            .orElseThrow(IllegalStateException::new);
-        if (!member.getRoles().isEmpty() && event.getChannelType().equals(ChannelType.PRIVATE)) {
-            event.reply(QuizQuestion.QUIZ_QUESTION);
-            MessageUtil.waitForResponse(event.getAuthor(), guild, waiter,
-                new QuizResponse(), QuizQuestion.QUIZ_TIMEOUT_IN_MIN);
+        try {
+            validateInput(event.getArgs());
+            Guild guild = GuildUtil.getGuild(event.getJDA());
+            Member member = FinderUtil.findMembers(event.getAuthor().getId(), guild)
+                .stream()
+                .findFirst()
+                .orElseThrow(IllegalStateException::new);
+            if (!member.getRoles().isEmpty() && event.getChannelType().equals(ChannelType.PRIVATE)) {
+                event.reply(QuizQuestion.QUIZ_QUESTION);
+                MessageUtil.waitForResponse(event.getAuthor(), guild, waiter,
+                    new QuizResponse(), QuizQuestion.QUIZ_TIMEOUT_IN_MIN);
+            }
+        } catch (IllegalArgumentException e) {
+            event.replyWarning(String.format("%s %s",
+                event.getMessage().getAuthor().getAsMention(), e.getMessage()));
+        }
+    }
+
+    private void validateInput(String args) {
+        if (!args.isEmpty()) {
+            throw new IllegalArgumentException("Please only type **+member** without any arguments!");
         }
     }
 }

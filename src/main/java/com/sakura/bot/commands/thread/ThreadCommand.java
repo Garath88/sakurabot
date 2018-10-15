@@ -118,10 +118,11 @@ public class ThreadCommand extends Command {
         setDenyForRole(threadChannel, event, QuizQuestion.QUIZ_ROLE);
         setDenyForRole(threadChannel, event, QuizQuestion.RULES_ROLE);
 
+        TextChannel threadTextChannel = findThreadTextChannel(threadChannel);
         if (storeInDatabase) {
             ThreadDbTable.addThread(event.getMember()
                 .getUser(), threadChannel);
-            TextChannel threadTextChannel = sendTopicHasBeenSetMsg(threadChannel, topic);
+            sendTopicHasBeenSetMsg(threadTextChannel, topic);
             InactiveThreadChecker.startOrCancelInactivityTaskIfNotTopX(threadTextChannel);
         } else { //Sakura thread
             ThreadDbTable.addThread(event.getSelfUser(), threadChannel);
@@ -136,24 +137,27 @@ public class ThreadCommand extends Command {
             .queue();
     }
 
-    private static TextChannel sendTopicHasBeenSetMsg(Channel threadChannel, String topic) {
-        TextChannel threadTextChannel = threadChannel.getGuild().getTextChannels().stream()
+    private static TextChannel findThreadTextChannel(Channel threadChannel) {
+        return threadChannel.getGuild().getTextChannels().stream()
             .filter(channel -> channel.getId().equals(threadChannel.getId()))
             .findFirst()
             .orElseThrow(() -> {
                 String errorMsg = String.format(
-                    "Something went really wrong, could not store created %s thread", topic);
+                    "Something went really wrong, could not find created thread: %s",
+                    threadChannel.getName());
                 LOGGER.error(errorMsg);
                 return new IllegalStateException(errorMsg);
             });
+    }
+
+    private static void sendTopicHasBeenSetMsg(TextChannel threadTextChannel, String topic) {
         threadTextChannel.sendMessage("The topic has now been set to: " +
             String.format("**%s**", topic))
             .queue(msg -> {
-                long threadId = threadChannel.getIdLong();
+                long threadId = threadTextChannel.getIdLong();
                 ThreadDbTable.storeLatestMsgId(
                     msg.getIdLong(), threadId);
                 ThreadDbTable.storePostCount(0, threadId);
             });
-        return threadTextChannel;
     }
 }

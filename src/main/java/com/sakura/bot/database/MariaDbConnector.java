@@ -47,4 +47,8 @@ public final class MariaDbConnector {
         }
         return null;
     }
+
+    static MariaDbConfig getConfig() {
+        return config;
+    }
 }

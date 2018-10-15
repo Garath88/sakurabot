@@ -1,11 +1,10 @@
 # Created by .ignore support plugin (hsz.mobi)
 ### Java template
 # Compiled class file
-*.class
 
 # Log file
 *.log
-
+/src/main/resources/logback.xml
 # BlueJ files
 *.ctxt
 
@@ -13,7 +12,6 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear
@@ -33,10 +31,5 @@ out
 gen
 /src/main/resources/configuration/config.txt
 /src/main/resources/configuration/mariadb.txt
-target/classes/configuration/
-target/classes/logback.xml
-target/dependency-reduced-pom.xml
-target/docker/Dockerfile
-target/generated-sources/
-target/maven-archiver/
-target/maven-status/
+target/
+

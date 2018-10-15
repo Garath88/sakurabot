@@ -18,12 +18,34 @@ public final class MessageUtil {
 
     public static void sendMessage(User user, String message) {
         user.openPrivateChannel()
-            .queue(pc -> MessageUtil.sendMessage(pc, message));
+            .queue(pc -> {
+                if (GuildUtil.userIsInGuild(pc.getUser())) {
+                    MessageUtil.sendMessage(pc, message);
+                }
+            });
     }
 
-    public static void sendMessage(MessageChannel chan, String message) {
-        chan.sendMessage(message)
-            .queue();
+    private static void sendMessage(MessageChannel channel, String message) {
+        channel.sendMessage(message)
+            .queue(success -> {
+            }, fail -> {
+            });
+    }
+
+    public static void sendMessageAfter(User user, String message, long delayInSeconds) {
+        user.openPrivateChannel()
+            .queue(pc -> {
+                if (GuildUtil.userIsInGuild(pc.getUser())) {
+                    MessageUtil.sendMessageAfter(pc, message, delayInSeconds);
+                }
+            });
+    }
+
+    private static void sendMessageAfter(MessageChannel channel, String message, long delayInSeconds) {
+        channel.sendMessage(message)
+            .queueAfter(delayInSeconds, TimeUnit.SECONDS, success -> {
+            }, fail -> {
+            });
     }
 
     public static void waitForResponse(User user, Guild guild,
@@ -33,10 +55,8 @@ public final class MessageUtil {
             e -> e.getAuthor().equals(user) && e.getChannel().getType().equals(ChannelType.PRIVATE),
             // respond, inserting the name they listed into the response
             e -> checkResponse.apply(guild, e, waiter),
-            // if the user takes more than a minute, time out
-            timeoutMinutes, TimeUnit.MINUTES, () -> user.openPrivateChannel()
-                .queue(pc -> MessageUtil.sendMessage(pc, String.format("- Sorry you were too slow %s :frowning: \n"
-                        + "- Please try again by typing the **%s" + "member** command.",
-                    user.getAsMention(), Config.PREFIX))));
+            timeoutMinutes, TimeUnit.MINUTES, () -> MessageUtil.sendMessage(user, String.format("- Sorry you were too slow %s :frowning: \n"
+                    + "- Please try again by typing the **%s" + "member** command.",
+                user.getAsMention(), Config.PREFIX)));
     }
 }

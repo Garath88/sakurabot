@@ -15,6 +15,7 @@ import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 
 public final class SortThreads {
 
@@ -35,11 +36,9 @@ public final class SortThreads {
             messageId = temp;
             MessageHistory history = thread.getHistoryAfter(messageId, 100)
                 .complete();
-            if (history.size() > 0) {
-                Message latestMsg = thread.getMessageById(messageId)
-                    .complete();
-                sortAndDoInactivityTask(history, thread, latestMsg, amountOfThreads);
-            }
+            Message latestMsg = thread.getMessageById(messageId)
+                .complete();
+            sortAndDoInactivityTask(history, thread, latestMsg, amountOfThreads);
         }
     }
 
@@ -99,11 +98,12 @@ public final class SortThreads {
         int postCount = 0;
         while (iter.hasNext()) {
             Message latestMessage = iter.next();
-            long currentAuthor = latestMessage.getAuthor()
-                .getIdLong();
             if (iter.hasNext()) {
                 Message previousMessage = iter.next();
-                if (currentAuthor != previousMessage.getAuthor().getIdLong()
+                User currentAuthor = latestMessage.getAuthor();
+                User previousAuthor = previousMessage.getAuthor();
+                if (!previousAuthor.isBot() && !currentAuthor.isBot() &&
+                    (currentAuthor.getIdLong() != previousAuthor.getIdLong())
                     || !latestMessage.getAttachments().isEmpty()) {
 
                     postCount++;

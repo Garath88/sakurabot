@@ -36,7 +36,7 @@ public final class InactiveThreadChecker {
         }
     }
 
-    private static boolean shouldNotBeSaved(TextChannel textChannel) {
+    static boolean shouldNotBeSaved(TextChannel textChannel) {
         List<TextChannel> allThreads = CategoryUtil.getThreadCategory(textChannel.getJDA()).getTextChannels();
         return allThreads.indexOf(textChannel) >= MIN_POS_TO_SAVE_CHAN;
     }

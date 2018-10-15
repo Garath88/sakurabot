@@ -11,6 +11,7 @@ final class MariaDbConfig {
     private final String dbUrl;
     private final String user;
     private final String pass;
+    private final String dbName;
 
     MariaDbConfig() throws IOException {
         TxtReader txtReader = new TxtReader(CONFIG_FILE);
@@ -18,6 +19,7 @@ final class MariaDbConfig {
         dbUrl = list.get(0);
         user = list.get(1);
         pass = list.get(2);
+        dbName = list.get(3);
     }
 
     String getDbUrl() {
@@ -30,5 +32,9 @@ final class MariaDbConfig {
 
     String getPass() {
         return pass;
+    }
+
+    String getDbName() {
+        return dbName;
     }
 }

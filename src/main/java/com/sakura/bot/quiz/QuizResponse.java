@@ -19,7 +19,6 @@ public class QuizResponse implements Response {
             MessageUtil.sendMessage(user, "- Correct");
             RoleUtil.addRole(guild, user, QuizQuestion.RULES_ROLE);
             RoleUtil.removeRole(guild, user, QuizQuestion.QUIZ_ROLE);
-
             RulesQuestion.perform(user, guild, waiter);
         } else {
             MessageUtil.sendMessage(user,
@@ -27,7 +26,8 @@ public class QuizResponse implements Response {
                         + "- You can try again by typing the **+member** command",
                     EmojiUtil.getCustomEmoji(e.getJDA(), "feelsbadman")));
             MessageUtil.sendMessage(guild.getOwner().getUser(),
-                String.format("%s: %s", user.getAsMention(), response));
+                String.format("%s#%s: %s%n%s"
+                    , user.getName(), user.getDiscriminator(), response, user.getAsMention()));
         }
     }
 }
