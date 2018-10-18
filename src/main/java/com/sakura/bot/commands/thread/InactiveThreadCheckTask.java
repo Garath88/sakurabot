@@ -16,7 +16,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 public final class InactiveThreadCheckTask extends Task {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(InactiveThreadCheckTask.class);
     private static final int NO_CONTENT_EXPIRE_AFTER_MIN = 5;
-    private static final int EXPIRE_AFTER_MIN = 24 * 60;
+    private static final int EXPIRE_AFTER_MIN = 48 * 60;
     private static final int WARNING_BEFORE_MIN = 8 * 60;
     private static final int FINAL_WARNING_BEFORE_MIN = 60;
     private final TextChannel thread;
