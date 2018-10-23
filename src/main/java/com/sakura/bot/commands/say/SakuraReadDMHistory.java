@@ -35,8 +35,7 @@ public class SakuraReadDMHistory extends Command {
             User owner = GuildUtil.getGuild(event.getJDA()).getOwner().getUser();
             user.openPrivateChannel()
                 .queue(pc -> pc.getIterableHistory().limit(Integer.valueOf(items[1])).queue(
-                    messages -> messages.forEach(msg -> MessageUtil.sendMessage(owner,
-                        msg.getContentRaw())))
+                    messages -> messages.forEach(msg -> MessageUtil.sendMessage(owner, msg)))
                 );
         } catch (IllegalArgumentException e) {
             event.replyWarning(e.getMessage());

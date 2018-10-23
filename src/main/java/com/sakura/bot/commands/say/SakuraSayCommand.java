@@ -18,6 +18,7 @@ import com.sakura.bot.utils.MentionUtil;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 
 public final class SakuraSayCommand extends Command {
@@ -72,12 +73,13 @@ public final class SakuraSayCommand extends Command {
         }
     }
 
-    private boolean textChannelExists(TextChannel textChannel, List<TextChannel> textChannels) {
+    private boolean textChannelExists(MessageChannel textChannel, List<TextChannel> textChannels) {
         return textChannels.stream()
             .anyMatch(chan -> chan.getId().equals(textChannel.getId()));
     }
 
-    private static void sendAttachments(List<Message.Attachment> attachments, TextChannel textChannel) {
+    /*TODO move to MSG Util*/
+    private static void sendAttachments(List<Message.Attachment> attachments, MessageChannel textChannel) {
         attachments.forEach(attachment -> {
             try {
                 textChannel.sendFile(attachment.getInputStream(), attachment.getFileName())
@@ -88,6 +90,7 @@ public final class SakuraSayCommand extends Command {
         });
     }
 
+    /*TODO: don't need isEmpty check twice*/
     private static void sendMessage(String message, TextChannel textChannel) {
         if (!StringUtils.isEmpty(message)) {
             message = "- " + message;

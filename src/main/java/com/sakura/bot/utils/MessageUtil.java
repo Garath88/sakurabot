@@ -1,6 +1,11 @@
 package com.sakura.bot.utils;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.configuration.Config;
@@ -8,12 +13,25 @@ import com.sakura.bot.quiz.Response;
 
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.Message.Attachment;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public final class MessageUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageUtil.class);
+
     private MessageUtil() {
+    }
+
+    public static void sendMessage(User user, Message message) {
+        user.openPrivateChannel()
+            .queue(pc -> {
+                if (GuildUtil.userIsInGuild(pc.getUser())) {
+                    MessageUtil.sendMessage(pc, message);
+                }
+            });
     }
 
     public static void sendMessage(User user, String message) {
@@ -23,6 +41,30 @@ public final class MessageUtil {
                     MessageUtil.sendMessage(pc, message);
                 }
             });
+    }
+
+    private static void sendMessage(MessageChannel channel, Message message) {
+        if (!message.getContentRaw().isEmpty()) {
+            channel.sendMessage(message)
+                .queue(success -> {
+                }, fail -> {
+                });
+        }
+        List<Message.Attachment> attachments = message.getAttachments();
+        if (!attachments.isEmpty()) {
+            sendAttachments(attachments, channel);
+        }
+    }
+
+    private static void sendAttachments(List<Attachment> attachments, MessageChannel textChannel) {
+        attachments.forEach(attachment -> {
+            try {
+                textChannel.sendFile(attachment.getInputStream(), attachment.getFileName())
+                    .queue();
+            } catch (IOException e) {
+                LOGGER.error("Failed to add attachment", e);
+            }
+        });
     }
 
     private static void sendMessage(MessageChannel channel, String message) {
