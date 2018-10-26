@@ -16,7 +16,7 @@ public class RulesResponse implements Response {
         String response = e.getMessage().getContentRaw().toLowerCase();
         if (response.equals("yes") || response.equals("y")) {
             RoleUtil.removeRole(guild, user, QuizQuestion.RULES_ROLE);
-            MessageUtil.sendMessage(user, "- Awesome! Welcome!");
+            MessageUtil.sendMessageToUser(user, "- Awesome! Welcome!");
         } else {
             RulesQuestion.perform(user, guild, waiter);
         }

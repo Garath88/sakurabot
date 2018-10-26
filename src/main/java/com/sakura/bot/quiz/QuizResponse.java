@@ -15,17 +15,17 @@ public class QuizResponse implements Response {
         User user = e.getAuthor();
         String response = e.getMessage().getContentRaw().toLowerCase();
         if (response.toLowerCase().contains("asagi")) {
-            MessageUtil.sendMessage(user, EmojiUtil.getCustomEmoji(e.getJDA(), "sakura"));
-            MessageUtil.sendMessage(user, "- Correct");
+            MessageUtil.sendMessageToUser(user, EmojiUtil.getCustomEmoji(e.getJDA(), "sakura"));
+            MessageUtil.sendMessageToUser(user, "- Correct");
             RoleUtil.addRole(guild, user, QuizQuestion.RULES_ROLE);
             RoleUtil.removeRole(guild, user, QuizQuestion.QUIZ_ROLE);
             RulesQuestion.perform(user, guild, waiter);
         } else {
-            MessageUtil.sendMessage(user,
+            MessageUtil.sendMessageToUser(user,
                 String.format("- Aww.. wrong answer %s \n"
                         + "- You can try again by typing the **+member** command",
                     EmojiUtil.getCustomEmoji(e.getJDA(), "feelsbadman")));
-            MessageUtil.sendMessage(guild.getOwner().getUser(),
+            MessageUtil.sendMessageToUser(guild.getOwner().getUser(),
                 String.format("%s#%s: %s%n%s"
                     , user.getName(), user.getDiscriminator(), response, user.getAsMention()));
         }

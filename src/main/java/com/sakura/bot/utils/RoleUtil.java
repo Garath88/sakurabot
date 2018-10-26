@@ -9,7 +9,6 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.managers.GuildController;
 
 public final class RoleUtil {
     private RoleUtil() {
@@ -21,8 +20,10 @@ public final class RoleUtil {
             .stream()
             .findFirst()
             .orElseThrow(IllegalStateException::new);
-        new GuildController(guild).addSingleRoleToMember(member, role)
-            .queue();
+        guild.getController().addSingleRoleToMember(member, role)
+            .queue(success -> {
+            }, fail -> {
+            });
     }
 
     public static void removeRole(Guild guild, User user, String roleName) {
@@ -31,8 +32,10 @@ public final class RoleUtil {
             .stream()
             .findFirst()
             .orElseThrow(IllegalStateException::new);
-        new GuildController(guild).removeSingleRoleFromMember(member, role)
-            .queue();
+        guild.getController().removeSingleRoleFromMember(member, role)
+            .queue(success -> {
+            }, fail -> {
+            });
     }
 
     public static Role findRole(Guild guild, String roleName) {

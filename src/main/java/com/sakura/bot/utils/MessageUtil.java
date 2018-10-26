@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,41 +26,45 @@ public final class MessageUtil {
     private MessageUtil() {
     }
 
-    public static void sendMessage(User user, Message message) {
-        user.openPrivateChannel()
-            .queue(pc -> {
-                if (GuildUtil.userIsInGuild(pc.getUser())) {
-                    MessageUtil.sendMessage(pc, message);
-                }
-            });
-    }
-
-    public static void sendMessage(User user, String message) {
-        user.openPrivateChannel()
-            .queue(pc -> {
-                if (GuildUtil.userIsInGuild(pc.getUser())) {
-                    MessageUtil.sendMessage(pc, message);
-                }
-            });
-    }
-
-    private static void sendMessage(MessageChannel channel, Message message) {
-        if (!message.getContentRaw().isEmpty()) {
-            channel.sendMessage(message)
-                .queue(success -> {
-                }, fail -> {
-                });
+    public static void sendMessageToChannel(String message, MessageChannel channel, boolean usePrefix) {
+        if (!StringUtils.isEmpty(message)) {
+            if (usePrefix) {
+                message = "- " + message;
+            }
+            MessageUtil.sendMessageToChannel(channel, message);
         }
+    }
+
+    public static void sendMessageToUser(User user, Message message) {
+        user.openPrivateChannel()
+            .queue(pc -> {
+                if (GuildUtil.userIsInGuild(pc.getUser())) {
+                    MessageUtil.sendMessageToChannel(pc, message);
+                }
+            });
+    }
+
+    public static void sendMessageToUser(User user, String message) {
+        user.openPrivateChannel()
+            .queue(pc -> {
+                if (GuildUtil.userIsInGuild(pc.getUser())) {
+                    MessageUtil.sendMessageToChannel(pc, message);
+                }
+            });
+    }
+
+    private static void sendMessageToChannel(MessageChannel channel, Message message) {
+        sendMessageToChannel(channel, message.getContentRaw());
         List<Message.Attachment> attachments = message.getAttachments();
         if (!attachments.isEmpty()) {
-            sendAttachments(attachments, channel);
+            sendAttachmentsToChannel(attachments, channel);
         }
     }
 
-    private static void sendAttachments(List<Attachment> attachments, MessageChannel textChannel) {
+    public static void sendAttachmentsToChannel(List<Attachment> attachments, MessageChannel channel) {
         attachments.forEach(attachment -> {
             try {
-                textChannel.sendFile(attachment.getInputStream(), attachment.getFileName())
+                channel.sendFile(attachment.getInputStream(), attachment.getFileName())
                     .queue();
             } catch (IOException e) {
                 LOGGER.error("Failed to add attachment", e);
@@ -67,27 +72,13 @@ public final class MessageUtil {
         });
     }
 
-    private static void sendMessage(MessageChannel channel, String message) {
-        channel.sendMessage(message)
-            .queue(success -> {
-            }, fail -> {
-            });
-    }
-
-    public static void sendMessageAfter(User user, String message, long delayInSeconds) {
-        user.openPrivateChannel()
-            .queue(pc -> {
-                if (GuildUtil.userIsInGuild(pc.getUser())) {
-                    MessageUtil.sendMessageAfter(pc, message, delayInSeconds);
-                }
-            });
-    }
-
-    private static void sendMessageAfter(MessageChannel channel, String message, long delayInSeconds) {
-        channel.sendMessage(message)
-            .queueAfter(delayInSeconds, TimeUnit.SECONDS, success -> {
-            }, fail -> {
-            });
+    private static void sendMessageToChannel(MessageChannel channel, String message) {
+        if (!message.isEmpty()) {
+            channel.sendMessage(message)
+                .queue(success -> {
+                }, fail -> {
+                });
+        }
     }
 
     public static void waitForResponse(User user, Guild guild,
@@ -97,7 +88,7 @@ public final class MessageUtil {
             e -> e.getAuthor().equals(user) && e.getChannel().getType().equals(ChannelType.PRIVATE),
             // respond, inserting the name they listed into the response
             e -> checkResponse.apply(guild, e, waiter),
-            timeoutMinutes, TimeUnit.MINUTES, () -> MessageUtil.sendMessage(user, String.format("- Sorry you were too slow %s :frowning: \n"
+            timeoutMinutes, TimeUnit.MINUTES, () -> MessageUtil.sendMessageToUser(user, String.format("- Sorry you were too slow %s :frowning: \n"
                     + "- Please try again by typing the **%s" + "member** command.",
                 user.getAsMention(), Config.PREFIX)));
     }

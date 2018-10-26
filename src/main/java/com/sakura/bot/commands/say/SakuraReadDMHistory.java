@@ -3,6 +3,7 @@ package com.sakura.bot.commands.say;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
@@ -35,8 +36,11 @@ public class SakuraReadDMHistory extends Command {
             User owner = GuildUtil.getGuild(event.getJDA()).getOwner().getUser();
             user.openPrivateChannel()
                 .queue(pc -> pc.getIterableHistory().limit(Integer.valueOf(items[1])).queue(
-                    messages -> messages.forEach(msg -> MessageUtil.sendMessage(owner, msg)))
-                );
+                    messages -> Lists.reverse(messages).forEach(msg -> MessageUtil.sendMessageToUser(owner, msg)),
+                    fail -> {
+                    })
+                    , fail -> {
+                    });
         } catch (IllegalArgumentException e) {
             event.replyWarning(e.getMessage());
         }

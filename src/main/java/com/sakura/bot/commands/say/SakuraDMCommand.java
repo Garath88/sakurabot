@@ -1,5 +1,7 @@
 package com.sakura.bot.commands.say;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Preconditions;
@@ -8,7 +10,9 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.sakura.bot.utils.ArgumentChecker;
 import com.sakura.bot.utils.MessageUtil;
+import com.sakura.bot.utils.PrivateChannelWrapper;
 
+import net.dv8tion.jda.core.entities.Message.Attachment;
 import net.dv8tion.jda.core.entities.User;
 
 public class SakuraDMCommand extends Command {
@@ -31,7 +35,15 @@ public class SakuraDMCommand extends Command {
             User user = FinderUtil.findUsers(userId, event.getJDA()).stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No user with that ID found!"));
-            MessageUtil.sendMessage(user, items[0]);
+            List<Attachment> attachments = event.getMessage().getAttachments();
+            user.openPrivateChannel().queue(
+                PrivateChannelWrapper.userIsInGuild(pc ->
+                {
+                    MessageUtil.sendAttachmentsToChannel(attachments, pc);
+                    MessageUtil.sendMessageToChannel(items[0], pc, true);
+                }),
+                fail -> {
+                });
         } catch (IllegalArgumentException e) {
             event.replyWarning(e.getMessage());
         }

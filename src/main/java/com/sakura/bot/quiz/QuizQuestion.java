@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.utils.GuildUtil;
 import com.sakura.bot.utils.MessageUtil;
-import com.sakura.bot.utils.MessageWrapper;
+import com.sakura.bot.utils.PrivateChannelWrapper;
 import com.sakura.bot.utils.RoleUtil;
 
 import net.dv8tion.jda.core.entities.Guild;
@@ -29,13 +29,13 @@ public final class QuizQuestion {
             Guild guild = GuildUtil.getGuild(event.getJDA());
             RoleUtil.addRole(guild, user, QUIZ_ROLE);
             user.openPrivateChannel()
-                .queue(MessageWrapper.wrap(pc -> pc.sendMessage(
+                .queue(PrivateChannelWrapper.userIsInGuild(pc -> pc.sendMessage(
                     "*Yohoo~* it's Sakura! :heart:").queue(
-                    MessageWrapper.wrap(msg2 -> pc.sendMessage(
+                    PrivateChannelWrapper.userIsInGuild(msg2 -> pc.sendMessage(
                         "- In order to gain access to this lewd server you must first answer **one** simple **question!**").queueAfter(3, TimeUnit.SECONDS,
-                        MessageWrapper.wrap(msg3 -> pc.sendMessage("- Ready? ").queueAfter(3, TimeUnit.SECONDS,
-                            MessageWrapper.wrap(msg4 -> msg4.editMessage("- Ready? Great, let's start!").queueAfter(1, TimeUnit.SECONDS,
-                                MessageWrapper.wrap(msg5 -> pc.sendMessage(QUIZ_QUESTION).queueAfter(2, TimeUnit.SECONDS,
+                        PrivateChannelWrapper.userIsInGuild(msg3 -> pc.sendMessage("- Ready? ").queueAfter(3, TimeUnit.SECONDS,
+                            PrivateChannelWrapper.userIsInGuild(msg4 -> msg4.editMessage("- Ready? Great, let's start!").queueAfter(1, TimeUnit.SECONDS,
+                                PrivateChannelWrapper.userIsInGuild(msg5 -> pc.sendMessage(QUIZ_QUESTION).queueAfter(2, TimeUnit.SECONDS,
                                     listen -> MessageUtil.waitForResponse(user, guild, waiter,
                                         new QuizResponse(), QuizQuestion.QUIZ_TIMEOUT_IN_MIN),
                                     fail -> {

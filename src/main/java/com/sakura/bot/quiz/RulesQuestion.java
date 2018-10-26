@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.utils.MessageUtil;
-import com.sakura.bot.utils.MessageWrapper;
+import com.sakura.bot.utils.PrivateChannelWrapper;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -24,10 +24,10 @@ final class RulesQuestion {
             .orElseThrow(IllegalStateException::new);
         user.openPrivateChannel()
             .queueAfter(1, TimeUnit.SECONDS,
-                MessageWrapper.wrap(pc -> pc.sendMessage(
+                PrivateChannelWrapper.userIsInGuild(pc -> pc.sendMessage(
                     String.format("- You should go and read the rules in %s",
                         rulesChannel.getAsMention()))
-                    .queue(MessageWrapper.wrap(msg2 -> pc.sendMessage(
+                    .queue(PrivateChannelWrapper.userIsInGuild(msg2 -> pc.sendMessage(
                         "- Have you read the rules? **(yes/no)**")
                             .queueAfter(4, TimeUnit.SECONDS,
                                 listen -> MessageUtil.waitForResponse(user, guild, waiter,

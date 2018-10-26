@@ -9,10 +9,10 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.impl.PrivateChannelImpl;
 import net.dv8tion.jda.core.entities.impl.ReceivedMessage;
 
-public final class MessageWrapper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MessageWrapper.class);
+public final class PrivateChannelWrapper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PrivateChannelWrapper.class);
 
-    private MessageWrapper() {
+    private PrivateChannelWrapper() {
     }
 
     @FunctionalInterface
@@ -20,7 +20,7 @@ public final class MessageWrapper {
         void accept(T t) throws E;
     }
 
-    public static <T> Consumer<T> wrap(
+    public static <T> Consumer<T> userIsInGuild(
         ThrowingConsumer<T, Exception> throwingConsumer) {
 
         return ret -> {
