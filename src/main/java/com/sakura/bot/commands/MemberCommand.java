@@ -36,7 +36,7 @@ public class MemberCommand extends Command {
             if (!member.getRoles().isEmpty() && event.getChannelType().equals(ChannelType.PRIVATE)) {
                 event.reply(QuizQuestion.QUIZ_QUESTION);
                 MessageUtil.waitForResponse(event.getAuthor(), guild, waiter,
-                    new QuizResponse(), QuizQuestion.QUIZ_TIMEOUT_IN_MIN);
+                    new QuizResponse(event.getClient()), QuizQuestion.QUIZ_TIMEOUT_IN_MIN);
             }
         } catch (IllegalArgumentException e) {
             event.replyWarning(String.format("%s %s",

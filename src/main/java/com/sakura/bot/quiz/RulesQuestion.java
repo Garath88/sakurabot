@@ -2,6 +2,7 @@ package com.sakura.bot.quiz;
 
 import java.util.concurrent.TimeUnit;
 
+import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.utils.MessageUtil;
 import com.sakura.bot.utils.PrivateChannelWrapper;
@@ -17,7 +18,7 @@ final class RulesQuestion {
     private RulesQuestion() {
     }
 
-    static void perform(User user, Guild guild, EventWaiter waiter) {
+    static void perform(User user, Guild guild, EventWaiter waiter, CommandClient client) {
         TextChannel rulesChannel = guild.getTextChannelsByName(
             RULES_CHANNEL, true).stream()
             .findFirst()
@@ -31,7 +32,7 @@ final class RulesQuestion {
                         "- Have you read the rules? **(yes/no)**")
                             .queueAfter(4, TimeUnit.SECONDS,
                                 listen -> MessageUtil.waitForResponse(user, guild, waiter,
-                                    new RulesResponse(), RULES_TIMEOUT_IN_MIN))),
+                                    new RulesResponse(client), RULES_TIMEOUT_IN_MIN))),
                         fail -> {
                         })),
                 fail -> {

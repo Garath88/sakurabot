@@ -2,6 +2,7 @@ package com.sakura.bot.quiz;
 
 import java.util.concurrent.TimeUnit;
 
+import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.utils.GuildUtil;
 import com.sakura.bot.utils.MessageUtil;
@@ -23,7 +24,7 @@ public final class QuizQuestion {
     private QuizQuestion() {
     }
 
-    public static void perform(Event event, EventWaiter waiter) {
+    public static void perform(Event event, EventWaiter waiter, CommandClientImpl client) {
         User user = ((GuildMemberJoinEvent)event).getMember().getUser();
         if (!user.isBot()) {
             Guild guild = GuildUtil.getGuild(event.getJDA());
@@ -37,7 +38,7 @@ public final class QuizQuestion {
                             PrivateChannelWrapper.userIsInGuild(msg4 -> msg4.editMessage("- Ready? Great, let's start!").queueAfter(1, TimeUnit.SECONDS,
                                 PrivateChannelWrapper.userIsInGuild(msg5 -> pc.sendMessage(QUIZ_QUESTION).queueAfter(2, TimeUnit.SECONDS,
                                     listen -> MessageUtil.waitForResponse(user, guild, waiter,
-                                        new QuizResponse(), QuizQuestion.QUIZ_TIMEOUT_IN_MIN),
+                                        new QuizResponse(client), QuizQuestion.QUIZ_TIMEOUT_IN_MIN),
                                     fail -> {
                                     })), fail -> {
                                 })), fail -> {

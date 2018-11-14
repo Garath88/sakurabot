@@ -1,7 +1,5 @@
 package com.sakura.bot.commands.say;
 
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Preconditions;
@@ -9,6 +7,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sakura.bot.Permissions;
 import com.sakura.bot.utils.ArgumentChecker;
+import com.sakura.bot.utils.TextChannelUtil;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 
@@ -26,7 +25,7 @@ public final class SakuraSetChanCommand extends Command {
         try {
             String args = event.getArgs();
             validateInput(args);
-            TextChannel channel = getChannel(args, event);
+            TextChannel channel = TextChannelUtil.getChannel(args, event.getEvent());
             SakuraChannelStorage.setChannel(channel);
 
             event.reply(
@@ -40,12 +39,5 @@ public final class SakuraSetChanCommand extends Command {
         ArgumentChecker.checkArgsBySpace(args, 1);
         Preconditions.checkArgument(StringUtils.isNumeric(args),
             String.format("Invalid channel id \"%s\", id must be numeric", args));
-    }
-
-    private TextChannel getChannel(String args, CommandEvent event) {
-        List<TextChannel> textChannels = event.getJDA().getTextChannels();
-        return textChannels.stream().filter(textChannel -> textChannel.getId().equals(args))
-            .findFirst().orElseThrow(() -> new IllegalArgumentException(
-                String.format("Could not find channel: %s", args)));
     }
 }

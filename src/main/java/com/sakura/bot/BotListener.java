@@ -1,11 +1,15 @@
 package com.sakura.bot;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.sakura.bot.commands.copy.CopyMediaCommand;
+import com.sakura.bot.commands.copy.CopyMessageChannelStorage;
 import com.sakura.bot.commands.thread.InactiveThreadChecker;
 import com.sakura.bot.commands.thread.SortThreads;
 import com.sakura.bot.database.ThreadDbTable;
@@ -14,6 +18,7 @@ import com.sakura.bot.utils.CategoryUtil;
 import com.sakura.bot.utils.EmojiUtil;
 
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -52,9 +57,10 @@ public class BotListener implements EventListener {
             ThreadDbTable.deleteChannel(deletedChannel.getIdLong());
             InactiveThreadChecker.cancelTaskIfDeleted(deletedChannel);
         } else if (event instanceof GuildMemberJoinEvent) {
-            QuizQuestion.perform(event, waiter);
+            QuizQuestion.perform(event, waiter, client);
         } else if (event instanceof MessageReceivedEvent) {
             handleSortingOfThreads(event);
+            handleCopyMessage((MessageReceivedEvent)event);
         } else if (event instanceof MessageDeleteEvent) {
             handleSortingOfThreads(event);
         }
@@ -77,6 +83,20 @@ public class BotListener implements EventListener {
                 MessageDeleteEvent deleteEvent = ((MessageDeleteEvent)event);
                 ThreadDbTable.updateLatestMsgInDbIfDeleted(deleteEvent.getMessageIdLong(),
                     deleteEvent.getTextChannel());
+            }
+        }
+    }
+
+    private void handleCopyMessage(MessageReceivedEvent event) {
+        if (!event.getChannelType().equals(ChannelType.PRIVATE)) {
+            String fromChanID = event.getTextChannel().getId();
+            Map<String, String> channelIDs = CopyMessageChannelStorage.getChannelIDs();
+            if (channelIDs.keySet().contains(fromChanID)) {
+                Optional<TextChannel> channelToSendTo = event.getJDA().getTextChannels().stream()
+                    .filter(chan -> chan.getId().equals(channelIDs.get(fromChanID)))
+                    .findFirst();
+                channelToSendTo.ifPresent(
+                    textChannel -> CopyMediaCommand.sendMedia(event.getMessage(), textChannel));
             }
         }
     }

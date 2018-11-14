@@ -137,6 +137,7 @@ public class ThreadCommand extends Command {
             .queue();
     }
 
+    /*TODO: use TextChannelUtil instead?*/
     private static TextChannel findThreadTextChannel(Channel threadChannel) {
         return threadChannel.getGuild().getTextChannels().stream()
             .filter(channel -> channel.getId().equals(threadChannel.getId()))

@@ -6,6 +6,7 @@ import java.util.List;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.commands.ChannelSpacingCommand;
+import com.sakura.bot.commands.copy.CopyMediaCommand;
 import com.sakura.bot.commands.MemberCommand;
 import com.sakura.bot.commands.SpoilerCommand;
 import com.sakura.bot.commands.say.SakuraDMCommand;
@@ -55,6 +56,7 @@ public class CommandList {
         commands.add(new SakuraReadDMHistory());
         commands.add(new ChannelSpacingCommand());
         commands.add(new MemberCommand(waiter));
+        commands.add(new CopyMediaCommand());
     }
 
     public List<Command> getCommands() {

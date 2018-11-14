@@ -1,5 +1,6 @@
 package com.sakura.bot.quiz;
 
+import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.utils.EmojiUtil;
 import com.sakura.bot.utils.MessageUtil;
@@ -10,6 +11,12 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class QuizResponse implements Response {
+    private CommandClient client;
+
+    public QuizResponse(CommandClient client) {
+        this.client = client;
+    }
+
     @Override
     public void apply(Guild guild, MessageReceivedEvent e, EventWaiter waiter) {
         User user = e.getAuthor();
@@ -19,7 +26,7 @@ public class QuizResponse implements Response {
             MessageUtil.sendMessageToUser(user, "- Correct");
             RoleUtil.addRole(guild, user, QuizQuestion.RULES_ROLE);
             RoleUtil.removeRole(guild, user, QuizQuestion.QUIZ_ROLE);
-            RulesQuestion.perform(user, guild, waiter);
+            RulesQuestion.perform(user, guild, waiter, client);
         } else {
             MessageUtil.sendMessageToUser(user,
                 String.format("- Aww.. wrong answer %s \n"
