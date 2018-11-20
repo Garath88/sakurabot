@@ -17,6 +17,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Message.Attachment;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -55,10 +56,15 @@ public final class MessageUtil {
 
     private static void sendMessageToChannel(MessageChannel channel, Message message) {
         sendMessageToChannel(channel, message.getContentRaw());
+        sendEmbedsToChannel(channel, message.getEmbeds());
         List<Message.Attachment> attachments = message.getAttachments();
         if (!attachments.isEmpty()) {
             sendAttachmentsToChannel(attachments, channel);
         }
+    }
+
+    private static void sendEmbedsToChannel(MessageChannel channel, List<MessageEmbed> embeds) {
+        embeds.forEach(embed -> channel.sendMessage(embed).queue());
     }
 
     public static void sendAttachmentsToChannel(List<Attachment> attachments, MessageChannel channel) {
