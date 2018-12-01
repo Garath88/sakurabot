@@ -78,19 +78,19 @@ public final class ThreadDbTable {
             try {
                 while (result.next()) {
                     count++;
-                    outprint.add((String.format("[%d]  **%-2s**",
+                    outprint.add((String.format("`[%d]`  **%-2s**",
                         count, result.getString("name"))));
                     channelIds.add(result.getLong("id"));
                 }
                 result.close();
                 return new ThreadInfo(outprint.stream()
-                    .collect(Collectors.joining("\n")), outprint, channelIds);
+                    .collect(Collectors.joining("\n")), channelIds);
             } catch (SQLException e) {
                 LOGGER.error(QUERY_RESULT_ERROR, e);
             }
         }
         return new ThreadInfo("No created channels found!",
-            Collections.emptyList(), Collections.emptyList());
+            Collections.emptyList());
     }
 
     public static void deleteChannel(Long id) {
