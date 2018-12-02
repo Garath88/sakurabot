@@ -13,7 +13,7 @@ import net.dv8tion.jda.core.entities.User;
 
 final class RulesQuestion {
     private static final String RULES_CHANNEL = "server info";
-    private static final int RULES_TIMEOUT_IN_MIN = 5;
+    private static final int RULES_TIMEOUT_IN_MIN = 6;
 
     private RulesQuestion() {
     }
@@ -30,7 +30,7 @@ final class RulesQuestion {
                         rulesChannel.getAsMention()))
                     .queue(PrivateChannelWrapper.userIsInGuild(msg2 -> pc.sendMessage(
                         "- Have you read the rules? **(yes/no)**")
-                            .queueAfter(4, TimeUnit.SECONDS,
+                            .queueAfter(5, TimeUnit.SECONDS,
                                 listen -> MessageUtil.waitForResponse(user, guild, waiter,
                                     new RulesResponse(client), RULES_TIMEOUT_IN_MIN))),
                         fail -> {
