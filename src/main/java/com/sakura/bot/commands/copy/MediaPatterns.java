@@ -27,6 +27,10 @@ final class MediaPatterns {
         Pattern.compile("^http(s?)://gfycat\\.com/(gifs/detail/)?[A-Za-z]+$");
     private static final Pattern URL_NOZOMI_PATTERN =
         Pattern.compile("^http(s?)://i.nozomi.la");
+    private static final Pattern URL_WEBM_PATTERN =
+        Pattern.compile("^http(s?)://.+\\.webm$");
+    private static final Pattern URL_MP4_PATTERN =
+        Pattern.compile("^http(s?)://.+\\.webm$");
 
     private static final List<Pattern> PATTERNS = Arrays.asList(
         URL_TWITTER_PATTERN,
@@ -39,7 +43,9 @@ final class MediaPatterns {
         URL_IMGUR_SINGLE_PATTERN,
         URL_IMGUR_ALBUM_PATTERN,
         URL_GFYCAT_PATTERN,
-        URL_NOZOMI_PATTERN);
+        URL_NOZOMI_PATTERN,
+        URL_WEBM_PATTERN,
+        URL_MP4_PATTERN);
 
     private MediaPatterns() {
     }

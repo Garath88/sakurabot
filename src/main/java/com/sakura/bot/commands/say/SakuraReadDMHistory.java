@@ -54,6 +54,6 @@ public class SakuraReadDMHistory extends Command {
         Preconditions.checkArgument(StringUtils.isNumeric(userId),
             String.format("Invalid user id \"%s\", id must be numeric", userId));
         Preconditions.checkArgument(StringUtils.isNumeric(limit),
-            String.format("Invalid limit \"%s\", id must be numeric", limit));
+            String.format("Invalid limit \"%s\", number must be numeric", limit));
     }
 }
