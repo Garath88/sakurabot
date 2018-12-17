@@ -30,7 +30,7 @@ final class MediaPatterns {
     private static final Pattern URL_WEBM_PATTERN =
         Pattern.compile("^http(s?)://.+\\.webm$");
     private static final Pattern URL_MP4_PATTERN =
-        Pattern.compile("^http(s?)://.+\\.webm$");
+        Pattern.compile("^http(s?)://.+\\.mp4$");
 
     private static final List<Pattern> PATTERNS = Arrays.asList(
         URL_TWITTER_PATTERN,
