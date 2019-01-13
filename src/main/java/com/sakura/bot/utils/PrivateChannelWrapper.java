@@ -37,8 +37,8 @@ public final class PrivateChannelWrapper {
                 } else {
                     throwingConsumer.accept(ret);
                 }
-            } catch (Exception ex) {
-                LOGGER.warn("Quiz error: {}", ex.getMessage());
+            } catch (Exception e) {
+                LOGGER.warn("DM error: {}", e.getMessage());
             }
         };
     }

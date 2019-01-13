@@ -40,10 +40,14 @@ public final class SakuraSayCommand extends Command {
     protected void execute(CommandEvent event) {
         try {
             String[] message = event.getArgs().split("\\|");
-            say(event, message[MESSAGE_INDEX]);
-            if (message.length == MESSAGE_WITH_CHANNEL_ID) {
-                ThreadCommand.createNewThread(event, message[THREAD_INDEX].trim(),
-                    false);
+            if (message.length == 1 && message[0].equals("-")) {
+                SakuraSayStorage.toggleUseDash(event);
+            } else {
+                say(event, message[MESSAGE_INDEX]);
+                if (message.length == MESSAGE_WITH_CHANNEL_ID) {
+                    ThreadCommand.createNewThread(event, message[THREAD_INDEX].trim(),
+                        false);
+                }
             }
         } catch (IllegalArgumentException e) {
             event.replyWarning(e.getMessage());
@@ -51,7 +55,7 @@ public final class SakuraSayCommand extends Command {
     }
 
     private void say(CommandEvent event, String message) {
-        TextChannel textChannel = SakuraChannelStorage.getChannel()
+        TextChannel textChannel = SakuraSayStorage.getChannel()
             .orElseThrow(() -> new IllegalArgumentException("You haven't added a text channel to talk in! \n "
                 + "Please use the **" + Config.PREFIX + "sakura_set_chan** command"));
         if (textChannelExists(textChannel, event.getJDA().getTextChannels())) {
@@ -62,7 +66,7 @@ public final class SakuraSayCommand extends Command {
                     message = EmojiUtil.addEmojisToMessage(event.getJDA(), message);
                 }
                 MessageUtil.sendAttachmentsToChannel(attachments, textChannel);
-                MessageUtil.sendMessageToChannel(message, textChannel, true);
+                MessageUtil.sendMessageToChannel(message, textChannel, SakuraSayStorage.getUseDash());
             } else {
                 event.reply(String.format("Currently talking in channel: **%s**",
                     textChannel.getName()));

@@ -20,10 +20,12 @@ import com.sakura.bot.utils.EmojiUtil;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.message.GenericMessageEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -63,6 +65,9 @@ public class BotListener implements EventListener {
             handleCopyMessage((MessageReceivedEvent)event);
         } else if (event instanceof MessageDeleteEvent) {
             handleSortingOfThreads(event);
+        } else if (event instanceof GuildMemberLeaveEvent) {
+            User user = ((GuildMemberLeaveEvent)event).getUser();
+            waiter.removeWaitingTask(user);
         }
     }
 

@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sakura.bot.database.ThreadDbTable;
 import com.sakura.bot.utils.CategoryUtil;
 import com.sakura.bot.utils.GuildUtil;
@@ -19,6 +22,7 @@ import net.dv8tion.jda.core.entities.User;
 
 public final class SortThreads {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SortThreads.class);
     private static AtomicInteger threadCounter = new AtomicInteger();
 
     private SortThreads() {
@@ -34,11 +38,15 @@ public final class SortThreads {
         }
         if (temp > 0) {
             messageId = temp;
-            MessageHistory history = thread.getHistoryAfter(messageId, 100)
-                .complete();
-            Message latestMsg = thread.getMessageById(messageId)
-                .complete();
-            sortAndDoInactivityTask(history, thread, latestMsg, amountOfThreads);
+            try {
+                MessageHistory history = thread.getHistoryAfter(messageId, 100)
+                    .complete();
+                Message latestMsg = thread.getMessageById(messageId)
+                    .complete();
+                sortAndDoInactivityTask(history, thread, latestMsg, amountOfThreads);
+            } catch (Exception e) {
+                LOGGER.error("Failed to sort threads", e);
+            }
         }
     }
 

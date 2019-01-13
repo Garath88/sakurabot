@@ -6,10 +6,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.sakura.bot.utils.ArgumentChecker;
-import com.sakura.bot.utils.GuildUtil;
 import com.sakura.bot.utils.MessageUtil;
+import com.sakura.bot.utils.UserUtil;
 
 import net.dv8tion.jda.core.entities.User;
 
@@ -29,14 +28,11 @@ public class SakuraReadDMHistory extends Command {
             String args = event.getArgs();
             validateArguments(args);
             String[] items = args.split("\\s");
-            User user = FinderUtil.findUsers(items[0]
-                .replaceAll("\\s+", ""), event.getJDA()).stream()
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
-            User owner = GuildUtil.getGuild(event.getJDA()).getOwner().getUser();
+            User user = UserUtil.findUser(items[0], event);
             user.openPrivateChannel()
                 .queue(pc -> pc.getIterableHistory().limit(Integer.valueOf(items[1])).queue(
-                    messages -> Lists.reverse(messages).forEach(msg -> MessageUtil.sendMessageToUser(owner, msg)),
+                    messages -> Lists.reverse(messages).forEach(
+                        msg -> MessageUtil.sendMessageToUser(event.getAuthor(), msg)),
                     fail -> {
                     })
                     , fail -> {

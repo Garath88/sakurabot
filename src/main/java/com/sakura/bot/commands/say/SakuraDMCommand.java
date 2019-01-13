@@ -7,10 +7,10 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.common.base.Preconditions;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.sakura.bot.utils.ArgumentChecker;
 import com.sakura.bot.utils.MessageUtil;
 import com.sakura.bot.utils.PrivateChannelWrapper;
+import com.sakura.bot.utils.UserUtil;
 
 import net.dv8tion.jda.core.entities.Message.Attachment;
 import net.dv8tion.jda.core.entities.User;
@@ -31,10 +31,7 @@ public class SakuraDMCommand extends Command {
             String args = event.getArgs();
             validateArguments(args);
             String[] items = args.split("\\|");
-            String userId = items[1].replaceAll("\\s+", "");
-            User user = FinderUtil.findUsers(userId, event.getJDA()).stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No user with that ID found!"));
+            User user = UserUtil.findUser(items[1], event);
             List<Attachment> attachments = event.getMessage().getAttachments();
             user.openPrivateChannel().queue(
                 PrivateChannelWrapper.userIsInGuild(pc ->

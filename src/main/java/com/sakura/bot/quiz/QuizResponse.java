@@ -22,13 +22,13 @@ public class QuizResponse implements Response {
     public void apply(Guild guild, MessageReceivedEvent e, EventWaiter waiter) {
         User user = e.getAuthor();
         String response = e.getMessage().getContentRaw().toLowerCase();
-        if (response.contains("asagi")) {
+        if ("asagi".equals(response) || "asagi igawa".equals(response) || "igawa asagi".equals(response)) {
             MessageUtil.sendMessageToUser(user, EmojiUtil.getCustomEmoji(e.getJDA(), "sakura"));
             MessageUtil.sendMessageToUser(user, "- Correct");
             RoleUtil.addRole(guild, user, QuizQuestion.RULES_ROLE);
             RoleUtil.removeRole(guild, user, QuizQuestion.QUIZ_ROLE);
             RulesQuestion.perform(user, guild, waiter, client);
-        } else if (response.equals("sakura") || response.equals("sakura igawa")) {
+        } else if ("sakura".equals(response) || "sakura igawa".equals(response) || "igawa sakura".equals(response)) {
             MessageUtil.sendMessageToUser(user,
                 "- Mee?! Why would I fight myself? You silly goose! :smile:\n"
                     + RETRY_MSG);

@@ -1,4 +1,4 @@
-package com.sakura.bot.commands;
+package com.sakura.bot.commands.misc;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;

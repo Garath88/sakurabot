@@ -96,6 +96,6 @@ public final class MessageUtil {
             e -> checkResponse.apply(guild, e, waiter),
             timeoutMinutes, TimeUnit.MINUTES, () -> MessageUtil.sendMessageToUser(user, String.format("- Sorry you were too slow %s :frowning: \n"
                     + "- Please try again by typing the **%s" + "member** command.",
-                user.getAsMention(), Config.PREFIX)));
+                user.getAsMention(), Config.PREFIX)), user);
     }
 }

@@ -31,8 +31,8 @@ public final class ThreadDbTable {
     public static void addThread(User user, Channel thread) {
         String sql = String.format("INSERT INTO %s.%s "
                 + "(user,user_id, name, id) "
-                + "VALUES ('%s', '%s', '%s', '%s')",
-            DB_NAME, TABLE_NAME, user.getName(), user.getId(), thread.getName(), thread.getId());
+                + "VALUES ('%s#%s', '%s', '%s', '%s')",
+            DB_NAME, TABLE_NAME, user.getName(), user.getDiscriminator(), user.getId(), thread.getName(), thread.getId());
         executeQuery(sql);
     }
 

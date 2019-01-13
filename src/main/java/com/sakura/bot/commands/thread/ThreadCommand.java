@@ -4,8 +4,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -16,15 +14,16 @@ import com.sakura.bot.quiz.QuizQuestion;
 import com.sakura.bot.utils.ArgumentChecker;
 import com.sakura.bot.utils.CategoryUtil;
 import com.sakura.bot.utils.RoleUtil;
+import com.sakura.bot.utils.TextChannelUtil;
 import com.sakura.bot.utils.WordBlacklist;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.Event;
 
 public class ThreadCommand extends Command {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadCommand.class);
     private static final Pattern SYMBOL_PATTERN = Pattern.compile("[^\\w ]");
     private static final int MAX_AMOUNT_OF_THREADS = 12;
     private static final int LURKER_MAX_THREAD_LIMIT = 1;
@@ -41,20 +40,28 @@ public class ThreadCommand extends Command {
     @Override
     protected void execute(CommandEvent event) {
         if (CategoryUtil.getThreadCategory(event.getJDA())
-            .getTextChannels().size() < MAX_AMOUNT_OF_THREADS && checkMaxThreadsPerLurker(event)) {
-            addNewThread(event);
+            .getTextChannels().size() >= MAX_AMOUNT_OF_THREADS) {
+            sendErrorMsg("Sorry maximum amount of threads reached!", event);
+        } else if (isAtMaxThreadsForUser(event)) {
+            sendErrorMsg(String.format(
+                "Sorry you can only make %s thread for your current role.",
+                LURKER_MAX_THREAD_LIMIT), event);
         } else {
-            event.reply("Sorry maximum amount of threads reached!");
-            event.reactError();
+            addNewThread(event);
         }
     }
 
-    private boolean checkMaxThreadsPerLurker(CommandEvent event) {
+    private void sendErrorMsg(String msg, CommandEvent event) {
+        event.reply(msg);
+        event.reactError();
+    }
+
+    private boolean isAtMaxThreadsForUser(CommandEvent event) {
         if (RoleUtil.getMemberRoles(event).isEmpty()) {
             ThreadInfo threadInfo = ThreadDbTable.getThreadInfoFromUser(event.getAuthor());
-            return threadInfo.getThreadIds().size() < LURKER_MAX_THREAD_LIMIT;
+            return threadInfo.getThreadIds().size() >= LURKER_MAX_THREAD_LIMIT;
         }
-        return true;
+        return false;
     }
 
     private void addNewThread(CommandEvent event) {
@@ -118,7 +125,7 @@ public class ThreadCommand extends Command {
         setDenyForRole(threadChannel, event, QuizQuestion.QUIZ_ROLE);
         setDenyForRole(threadChannel, event, QuizQuestion.RULES_ROLE);
 
-        TextChannel threadTextChannel = findThreadTextChannel(threadChannel);
+        TextChannel threadTextChannel = findThreadTextChannel(threadChannel, event.getEvent());
         if (storeInDatabase) {
             ThreadDbTable.addThread(event.getMember()
                 .getUser(), threadChannel);
@@ -137,18 +144,9 @@ public class ThreadCommand extends Command {
             .queue();
     }
 
-    /*TODO: use TextChannelUtil instead?*/
-    private static TextChannel findThreadTextChannel(Channel threadChannel) {
-        return threadChannel.getGuild().getTextChannels().stream()
-            .filter(channel -> channel.getId().equals(threadChannel.getId()))
-            .findFirst()
-            .orElseThrow(() -> {
-                String errorMsg = String.format(
-                    "Something went really wrong, could not find created thread: %s",
-                    threadChannel.getName());
-                LOGGER.error(errorMsg);
-                return new IllegalStateException(errorMsg);
-            });
+    /*TODO: is event needed? perhaps use JDA?*/
+    private static TextChannel findThreadTextChannel(Channel threadChannel, Event event) {
+        return TextChannelUtil.getChannel(threadChannel.getId(), event);
     }
 
     private static void sendTopicHasBeenSetMsg(TextChannel threadTextChannel, String topic) {

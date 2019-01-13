@@ -24,4 +24,4 @@ public enum Permissions {
     public List<String> getValues() {
         return values;
     }
-    }
+}

@@ -1,4 +1,4 @@
-package com.sakura.bot.commands;
+package com.sakura.bot.commands.misc;
 
 import java.util.ArrayList;
 import java.util.List;
