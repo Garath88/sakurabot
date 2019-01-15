@@ -1,5 +1,6 @@
 package com.sakura.bot.commands.thread;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +20,7 @@ import com.sakura.bot.utils.WordBlacklist;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.Event;
@@ -118,12 +120,9 @@ public class ThreadCommand extends Command {
     }
 
     private static void doTasks(Channel threadChannel, CommandEvent event, String topic, boolean storeInDatabase) {
-        threadChannel.createPermissionOverride(event.getGuild()
-            .getPublicRole())
-            .setDeny(Permission.CREATE_INSTANT_INVITE)
-            .queue();
-        setDenyForRole(threadChannel, event, QuizQuestion.QUIZ_ROLE);
-        setDenyForRole(threadChannel, event, QuizQuestion.RULES_ROLE);
+        setDenyForRole(threadChannel, event, QuizQuestion.QUIZ_ROLE, Permission.MESSAGE_READ);
+        setDenyForRole(threadChannel, event, QuizQuestion.RULES_ROLE, Permission.MESSAGE_READ);
+        setDenyForRole(threadChannel, event, event.getGuild().getPublicRole().getName(), Permission.CREATE_INSTANT_INVITE);
 
         TextChannel threadTextChannel = findThreadTextChannel(threadChannel, event.getEvent());
         if (storeInDatabase) {
@@ -138,10 +137,17 @@ public class ThreadCommand extends Command {
         }
     }
 
-    private static void setDenyForRole(Channel threadChannel, CommandEvent event, String roleName) {
-        threadChannel.createPermissionOverride(RoleUtil.findRole(event.getGuild(), roleName))
-            .setDeny(Permission.MESSAGE_READ)
-            .queue();
+    /*TODO Refactor this*/
+    private static void setDenyForRole(Channel threadChannel, CommandEvent event, String roleName, Permission permission) {
+        Role role = RoleUtil.findRole(event.getGuild(), roleName);
+        List<Permission> threadPermissions =
+            threadChannel.getPermissionOverride(role)
+                .getDenied();
+        if (!threadPermissions.contains(permission)) {
+            threadChannel.createPermissionOverride(role)
+                .setDeny(permission)
+                .queue();
+        }
     }
 
     /*TODO: is event needed? perhaps use JDA?*/
