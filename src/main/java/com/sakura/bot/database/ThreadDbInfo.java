@@ -2,11 +2,11 @@ package com.sakura.bot.database;
 
 import java.util.List;
 
-public class ThreadInfo {
+public class ThreadDbInfo {
     private String listedThreads;
     private List<Long> threadIds;
 
-    ThreadInfo(String listedThreads, List<Long> threadIds) {
+    ThreadDbInfo(String listedThreads, List<Long> threadIds) {
         this.listedThreads = listedThreads;
         this.threadIds = threadIds;
     }

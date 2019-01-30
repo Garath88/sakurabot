@@ -8,6 +8,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sakura.bot.Permissions;
 import com.sakura.bot.commands.thread.ThreadCommand;
+import com.sakura.bot.commands.thread.ThreadInfo;
 import com.sakura.bot.configuration.Config;
 import com.sakura.bot.utils.EmojiUtil;
 import com.sakura.bot.utils.MentionUtil;
@@ -45,8 +46,9 @@ public final class SakuraSayCommand extends Command {
             } else {
                 say(event, message[MESSAGE_INDEX]);
                 if (message.length == MESSAGE_WITH_CHANNEL_ID) {
-                    ThreadCommand.createNewThread(event, message[THREAD_INDEX].trim(),
-                        false);
+                    String name = message[THREAD_INDEX].trim();
+                    ThreadCommand.createNewThread(event,
+                        new ThreadInfo(name, name, false));
                 }
             }
         } catch (IllegalArgumentException e) {

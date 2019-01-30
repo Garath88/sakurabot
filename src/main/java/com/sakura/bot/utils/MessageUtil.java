@@ -3,14 +3,15 @@ package com.sakura.bot.utils;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.sakura.bot.configuration.Config;
-import com.sakura.bot.quiz.Response;
+import com.sakura.bot.TriFunction;
 
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
@@ -87,15 +88,40 @@ public final class MessageUtil {
         }
     }
 
-    public static void waitForResponse(User user, Guild guild,
-        EventWaiter waiter, Response checkResponse, int timeoutMinutes) {
+    public static void waitForResponseInDM(User user, Guild guild, EventWaiter waiter,
+        TriFunction<Guild, MessageReceivedEvent, EventWaiter> dmResponse,
+        int timeoutMinutes, String retryMsg) {
+
+        checkResponseInDM(e -> dmResponse.apply(guild, e, waiter),
+            waiter, user, timeoutMinutes, retryMsg);
+    }
+
+    private static void checkResponseInDM(Consumer<MessageReceivedEvent> dmResponse,
+        EventWaiter waiter, User user, int timeoutMinutes,
+        String retryMsg) {
         waiter.waitForEvent(MessageReceivedEvent.class,
-            // make sure it's by the same user, and in the same channel
             e -> e.getAuthor().equals(user) && e.getChannel().getType().equals(ChannelType.PRIVATE),
-            // respond, inserting the name they listed into the response
-            e -> checkResponse.apply(guild, e, waiter),
-            timeoutMinutes, TimeUnit.MINUTES, () -> MessageUtil.sendMessageToUser(user, String.format("- Sorry you were too slow %s :frowning: \n"
-                    + "- Please try again by typing the **%s" + "member** command.",
-                user.getAsMention(), Config.PREFIX)), user);
+            dmResponse, timeoutMinutes, TimeUnit.MINUTES, () -> MessageUtil.sendMessageToUser(user,
+                String.format("- Sorry you were too slow %s :frowning: \n"
+                    + retryMsg, user.getAsMention())), user);
+    }
+
+    public static void waitForResponseInChannel(CommandEvent event, EventWaiter waiter,
+        Consumer<MessageReceivedEvent> channelResponse,
+        int timeoutMinutes, String retryMsg) {
+        User user = event.getAuthor();
+
+        checkResponseInChannel(channelResponse,
+            waiter, user, timeoutMinutes, retryMsg, event);
+    }
+
+    private static void checkResponseInChannel(Consumer<MessageReceivedEvent> channelResponse,
+        EventWaiter waiter, User user, int timeoutMinutes,
+        String retryMsg, CommandEvent event) {
+        waiter.waitForEvent(MessageReceivedEvent.class,
+            e -> e.getAuthor().equals(user) && e.getChannel().getId().equals(event.getChannel().getId()),
+            channelResponse, timeoutMinutes, TimeUnit.MINUTES, () -> event.reply(
+                String.format("- Sorry you were too slow %s :frowning: \n"
+                    + retryMsg, user.getAsMention())), user);
     }
 }

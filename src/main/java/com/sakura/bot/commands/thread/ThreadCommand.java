@@ -8,9 +8,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.sakura.bot.commands.thread.prompt.ThreadQuestion;
 import com.sakura.bot.configuration.Config;
+import com.sakura.bot.database.ThreadDbInfo;
 import com.sakura.bot.database.ThreadDbTable;
-import com.sakura.bot.database.ThreadInfo;
 import com.sakura.bot.quiz.QuizQuestion;
 import com.sakura.bot.utils.ArgumentChecker;
 import com.sakura.bot.utils.CategoryUtil;
@@ -29,11 +31,12 @@ public class ThreadCommand extends Command {
     private static final Pattern SYMBOL_PATTERN = Pattern.compile("[^\\w ]");
     private static final int MAX_AMOUNT_OF_THREADS = 12;
     private static final int LURKER_MAX_THREAD_LIMIT = 1;
+    private final EventWaiter waiter;
 
-    public ThreadCommand() {
+    public ThreadCommand(EventWaiter waiter) {
+        this.waiter = waiter;
         this.name = "thread";
-        this.help = "creates a new thread with topic.";
-        this.arguments = "<topic>";
+        this.help = "creates a new thread with description";
         this.botPermissions = new Permission[] {
             Permission.MANAGE_CHANNEL
         };
@@ -60,7 +63,7 @@ public class ThreadCommand extends Command {
 
     private boolean isAtMaxThreadsForUser(CommandEvent event) {
         if (RoleUtil.getMemberRoles(event).isEmpty()) {
-            ThreadInfo threadInfo = ThreadDbTable.getThreadInfoFromUser(event.getAuthor());
+            ThreadDbInfo threadInfo = ThreadDbTable.getThreadInfoFromUser(event.getAuthor());
             return threadInfo.getThreadIds().size() >= LURKER_MAX_THREAD_LIMIT;
         }
         return false;
@@ -68,54 +71,71 @@ public class ThreadCommand extends Command {
 
     private void addNewThread(CommandEvent event) {
         String topic = event.getArgs();
+        if (topic.isEmpty()) {
+            if (waiter.isNotWaitingForUser(event.getAuthor())) {
+                ThreadQuestion.perform(event, waiter);
+            }
+        } else {
+            createNewThread(event,
+                new ThreadInfo(topic, topic, true));
+        }
+    }
+
+    public static void createNewThread(CommandEvent event, ThreadInfo threadInfo) {
         try {
-            createNewThread(event, topic, true);
+            String name = threadInfo.getName();
+            ArgumentChecker.checkIfArgsAreNotEmpty(name);
+            validateName(name, event);
+            String description = threadInfo.getDescription();
+            validateTopic(description, event);
+            boolean storeInDatabase = threadInfo.getStoreInDatabase();
+            createThreadChannel(event, name, description, storeInDatabase);
         } catch (IllegalArgumentException | IllegalStateException e) {
             event.replyWarning(String.format("%s %s",
                 event.getMessage().getAuthor().getAsMention(), e.getMessage()));
         }
     }
 
-    public static void createNewThread(CommandEvent event, String topic, boolean storeInDatabase) {
-        ArgumentChecker.checkIfArgsAreNotEmpty(topic);
-        validateTopicName(topic, event);
-        createThreadChannel(event, topic, storeInDatabase);
-    }
-
-    private static void validateTopicName(String topic, CommandEvent event) {
+    private static void validateName(String topic, CommandEvent event) {
         if (StringUtils.isNotEmpty(topic) && topic.length() >= 2 && topic.length() <= 100) {
             topic = topic.replaceAll("'", "");
             Matcher matcher = SYMBOL_PATTERN.matcher(topic);
             if (matcher.find()) {
-                throw new IllegalArgumentException("Invalid input, topic can not contain special character");
+                throw new IllegalArgumentException(
+                    String.format("Invalid name, \"%s\" can not contain special character",
+                        topic));
             }
-            String badWord = WordBlacklist.searchBadWord(topic);
-            if (StringUtils.isNotEmpty(badWord)) {
-                User owner = event.getJDA().getUserById(Config.getOwnerId());
-                event.reply(owner.getAsMention() + " says: \nhttps://i.makeagif.com/media/2-21-2015/RDVwim.gif");
-                throw new IllegalArgumentException(String.format("Found blacklisted phrase **%s** in topic name", badWord));
-            }
+            validateTopic(topic, event);
         } else {
-            throw new IllegalArgumentException("Topic can not be empty and must be between 2-100 characters");
+            throw new IllegalArgumentException("Name can not be empty and must be between 2-100 characters");
         }
     }
 
-    private static void createThreadChannel(CommandEvent event, String topic, boolean storeInDatabase) {
+    private static void validateTopic(String topic, CommandEvent event) {
+        String badWord = WordBlacklist.searchBadWord(topic);
+        if (StringUtils.isNotEmpty(badWord)) {
+            User owner = event.getJDA().getUserById(Config.getOwnerId());
+            event.reply(owner.getAsMention() + " says: \nhttps://i.makeagif.com/media/2-21-2015/RDVwim.gif");
+            throw new IllegalArgumentException(String.format("Found blacklisted phrase **%s** in topic name", badWord));
+        }
+    }
+
+    private static void createThreadChannel(CommandEvent event, String name, String description, boolean storeInDatabase) {
         net.dv8tion.jda.core.entities.Category threadCategory = CategoryUtil.getThreadCategory(event.getJDA());
-        validateThreadName(threadCategory, topic);
-        final String channelTopic = topic.replaceAll(" ", "` `");
+        validateThreadName(threadCategory, name);
+        final String channelTopic = name.replaceAll(" ", "` `");
         event.getGuild().getController().createTextChannel(channelTopic)
-            .setTopic(topic)
+            .setTopic(description)
             .setNSFW(true)
             .setParent(threadCategory)
-            .queue(chan -> doTasks(chan, event, topic, storeInDatabase));
-        event.reply(String.format("Succesfully created new thread: **%s**", topic));
+            .queue(chan -> doTasks(chan, event, description, storeInDatabase));
+        event.reply(String.format("Succesfully created new thread: **%s**", name));
     }
 
     private static void validateThreadName(net.dv8tion.jda.core.entities.Category customCategory, String topic) {
         if (customCategory.getTextChannels().stream().anyMatch(chan -> chan.getName().equals(topic))) {
             throw new IllegalArgumentException(String.format(
-                "This thread already exists! **%s**", topic));
+                "This thread **%s** already exists! Please retry the command again.", topic));
         }
     }
 

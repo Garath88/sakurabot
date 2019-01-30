@@ -30,21 +30,26 @@ public final class QuizQuestion {
             Guild guild = GuildUtil.getGuild(event.getJDA());
             RoleUtil.addRole(guild, user, QUIZ_ROLE);
             user.openPrivateChannel()
-                .queue(PrivateChannelWrapper.userIsInGuild(pc -> pc.sendMessage(
-                    "*Yohoo~* it's Sakura! :heart:").queue(
-                    PrivateChannelWrapper.userIsInGuild(msg2 -> pc.sendMessage(
-                        "- In order to gain access to this lewd server you must first answer **one** simple **question!**").queueAfter(3, TimeUnit.SECONDS,
-                        PrivateChannelWrapper.userIsInGuild(msg3 -> pc.sendMessage("- Ready? ").queueAfter(3, TimeUnit.SECONDS,
-                            PrivateChannelWrapper.userIsInGuild(msg4 -> msg4.editMessage("- Ready? Great, let's start!").queueAfter(1, TimeUnit.SECONDS,
-                                PrivateChannelWrapper.userIsInGuild(msg5 -> pc.sendMessage(QUIZ_QUESTION).queueAfter(3, TimeUnit.SECONDS,
-                                    listen -> MessageUtil.waitForResponse(user, guild, waiter,
-                                        new QuizResponse(client), QuizQuestion.QUIZ_TIMEOUT_IN_MIN),
-                                    fail -> {
-                                    })), fail -> {
+                .queue(PrivateChannelWrapper.userIsInGuild(pc ->
+                    pc.sendMessage("*Yohoo~* it's Sakura! :heart:")
+                        .queue(PrivateChannelWrapper.userIsInGuild(msg2 ->
+                            pc.sendMessage("- In order to gain access to this lewd server you must first answer **one** simple **question!**")
+                                .queueAfter(3, TimeUnit.SECONDS, PrivateChannelWrapper.userIsInGuild(msg3 ->
+                                    pc.sendMessage("- Ready? ")
+                                        .queueAfter(3, TimeUnit.SECONDS, PrivateChannelWrapper.userIsInGuild(msg4 ->
+                                            msg4.editMessage("- Ready? Great, let's start!")
+                                                .queueAfter(1, TimeUnit.SECONDS, PrivateChannelWrapper.userIsInGuild(msg5 ->
+                                                    pc.sendMessage(QUIZ_QUESTION)
+                                                        .queueAfter(3, TimeUnit.SECONDS,
+                                                            listen -> MessageUtil.waitForResponseInDM(user, guild, waiter,
+                                                                new QuizResponse(client), QuizQuestion.QUIZ_TIMEOUT_IN_MIN,
+                                                                QuizResponse.RETRY_MSG),
+                                                            fail -> {
+                                                            })), fail -> {
+                                                })), fail -> {
+                                        })), fail -> {
                                 })), fail -> {
-                            })), fail -> {
                         })), fail -> {
-                    })), fail -> {
                 });
         }
     }

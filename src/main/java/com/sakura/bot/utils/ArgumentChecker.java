@@ -33,7 +33,7 @@ public final class ArgumentChecker {
     }
 
     public static void checkIfArgsAreNotEmpty(String arguments) {
-        if (arguments.isEmpty()) {
+        if (StringUtils.isEmpty(arguments)) {
             throw new IllegalArgumentException("You didn't give me any arguments!");
         }
     }

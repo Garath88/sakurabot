@@ -11,7 +11,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.configuration.Config;
 import com.sakura.bot.database.ThreadDbTable;
-import com.sakura.bot.database.ThreadInfo;
+import com.sakura.bot.database.ThreadDbInfo;
 import com.sakura.bot.utils.ArgumentChecker;
 import com.sakura.bot.utils.CategoryUtil;
 
@@ -37,7 +37,7 @@ public class DeleteThreadCommand extends Command {
     protected void execute(CommandEvent event) {
         try {
             ArgumentChecker.checkArgsBySpace(event.getArgs(), 0);
-            ThreadInfo threadInfo = ThreadDbTable.getThreadInfoFromUser(event.getMember().getUser());
+            ThreadDbInfo threadInfo = ThreadDbTable.getThreadInfoFromUser(event.getMember().getUser());
             event.reply(String.format("Listing created threads for %s: %n",
                 event.getMessage().getAuthor().getAsMention()));
             event.reply(threadInfo.getlistedChannels());
@@ -59,7 +59,7 @@ public class DeleteThreadCommand extends Command {
     }
 
     private void deleteChannel(CommandEvent event, String msgWithNumber,
-        ThreadInfo threadInfo) {
+        ThreadDbInfo threadInfo) {
         try {
             validateInput(msgWithNumber, threadInfo.getThreadIds().size());
             TextChannel threadToDelete =
@@ -89,7 +89,7 @@ public class DeleteThreadCommand extends Command {
         }
     }
 
-    private TextChannel getThreadToDelete(JDA jda, String number, ThreadInfo threadInfo) {
+    private TextChannel getThreadToDelete(JDA jda, String number, ThreadDbInfo threadInfo) {
         long threadId = threadInfo.getThreadIds()
             .get(Integer.valueOf(number) - 1);
         return CategoryUtil.getThreadCategory(jda).getTextChannels().stream()

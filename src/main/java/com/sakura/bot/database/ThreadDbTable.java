@@ -66,7 +66,7 @@ public final class ThreadDbTable {
         return Collections.emptyList();
     }
 
-    public static ThreadInfo getThreadInfoFromUser(User user) {
+    public static ThreadDbInfo getThreadInfoFromUser(User user) {
         String sql = String.format(
             "SELECT name, id FROM %s.%s WHERE user_id = %s",
             DB_NAME, TABLE_NAME, user.getId());
@@ -83,13 +83,13 @@ public final class ThreadDbTable {
                     channelIds.add(result.getLong("id"));
                 }
                 result.close();
-                return new ThreadInfo(outprint.stream()
+                return new ThreadDbInfo(outprint.stream()
                     .collect(Collectors.joining("\n")), channelIds);
             } catch (SQLException e) {
                 LOGGER.error(QUERY_RESULT_ERROR, e);
             }
         }
-        return new ThreadInfo("No created channels found!",
+        return new ThreadDbInfo("No created channels found!",
             Collections.emptyList());
     }
 
