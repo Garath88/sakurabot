@@ -28,7 +28,7 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.Event;
 
 public class ThreadCommand extends Command {
-    private static final Pattern SYMBOL_PATTERN = Pattern.compile("[^\\w ]");
+    private static final Pattern SYMBOL_PATTERN = Pattern.compile("[^\\w -]");
     private static final int MAX_AMOUNT_OF_THREADS = 12;
     private static final int LURKER_MAX_THREAD_LIMIT = 1;
     private final EventWaiter waiter;
@@ -36,7 +36,7 @@ public class ThreadCommand extends Command {
     public ThreadCommand(EventWaiter waiter) {
         this.waiter = waiter;
         this.name = "thread";
-        this.help = "creates a new thread with description";
+        this.help = "creates a new thread with description.";
         this.botPermissions = new Permission[] {
             Permission.MANAGE_CHANNEL
         };
@@ -72,9 +72,7 @@ public class ThreadCommand extends Command {
     private void addNewThread(CommandEvent event) {
         String topic = event.getArgs();
         if (topic.isEmpty()) {
-            if (waiter.isNotWaitingForUser(event.getAuthor())) {
-                ThreadQuestion.perform(event, waiter);
-            }
+            ThreadQuestion.perform(event, waiter);
         } else {
             createNewThread(event,
                 new ThreadInfo(topic, topic, true));
