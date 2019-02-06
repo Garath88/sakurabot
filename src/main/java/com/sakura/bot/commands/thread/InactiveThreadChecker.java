@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sakura.bot.tasks.TaskListContainer;
 import com.sakura.bot.utils.CategoryUtil;
 
@@ -11,6 +14,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.TextChannel;
 
 public final class InactiveThreadChecker {
+    private static final Logger LOGGER = LoggerFactory.getLogger(InactiveThreadChecker.class);
     private static final int MIN_POS_TO_SAVE_CHAN = 6;
     private static TaskListContainer taskListContainer = new TaskListContainer();
 
@@ -48,6 +52,12 @@ public final class InactiveThreadChecker {
 
     private static void cancelInactivityTask(TextChannel textChannel) {
         Optional<InactiveThreadCheckTask> task = getThreadTask(textChannel.getIdLong());
+        //*TODO: REMOVE EXTRA LOGGING:
+        if (task.isPresent()) {
+            String debugInfo = String.format("Canceling inactivity task for %s",
+                textChannel.getName());
+            LOGGER.info(debugInfo);
+        }
         task.ifPresent(inactiveThreadCheckTask ->
             taskListContainer.cancelTask(inactiveThreadCheckTask));
     }

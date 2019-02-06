@@ -21,7 +21,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
 public final class SortThreads {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SortThreads.class);
     private static AtomicInteger threadCounter = new AtomicInteger();
 
@@ -45,12 +44,16 @@ public final class SortThreads {
                     .complete();
                 sortAndDoInactivityTask(history, thread, latestMsg, amountOfThreads);
             } catch (Exception e) {
-                LOGGER.error("Failed to sort threads", e);
+                String errorMsg = String.format("Failed to get latest msg id for %s using msgId: %s",
+                    thread.getName(), messageId);
+                LOGGER.error(errorMsg, e);
             }
         }
     }
 
-    private static void sortAndDoInactivityTask(MessageHistory history, TextChannel thread, Message latestMessage, int amountOfThreads) {
+    private static void sortAndDoInactivityTask(MessageHistory history, TextChannel thread,
+        Message latestMessage, int amountOfThreads) {
+
         boolean isLastThread = checkIfLastThread(amountOfThreads);
         countAndStorePostCount(history, latestMessage, thread);
         if (isLastThread) {
@@ -70,7 +73,9 @@ public final class SortThreads {
         }
     }
 
-    private static void sortAllThreadsByPostCountAndStartOrCancelInactivityTask(JDA jda, List<TextChannel> allThreads) {
+    private static void sortAllThreadsByPostCountAndStartOrCancelInactivityTask(
+        JDA jda, List<TextChannel> allThreads) {
+
         Category category = CategoryUtil.getThreadCategory(jda);
         if (!allThreads.isEmpty()) {
             GuildUtil.getGuild(jda).getController()
@@ -82,13 +87,21 @@ public final class SortThreads {
         }
     }
 
-    private static void countAndStorePostCount(MessageHistory msgHistory, Message latestMsg, TextChannel thread) {
-        List<Message> messages = new ArrayList<>(msgHistory.getRetrievedHistory());
-        messages.add(latestMsg);
-        long threadId = thread.getIdLong();
-        Integer postCount = ThreadDbTable.getPostCount(thread);
-        postCount += countUniqueNewMessages(messages, threadId);
-        ThreadDbTable.storePostCount(postCount, threadId);
+    private static void countAndStorePostCount(MessageHistory msgHistory,
+        Message latestMsg, TextChannel thread) {
+
+        try {
+            List<Message> messages = new ArrayList<>(msgHistory.getRetrievedHistory());
+            messages.add(latestMsg);
+            long threadId = thread.getIdLong();
+            Integer postCount = ThreadDbTable.getPostCount(thread);
+            postCount += countUniqueNewMessages(messages, threadId);
+            ThreadDbTable.storePostCount(postCount, threadId);
+        } catch (Exception e) {
+            String errorMsg = String.format("Failed to count and store post count for %s",
+                thread.getName());
+            LOGGER.error(errorMsg, e);
+        }
     }
 
     private static int countUniqueNewMessages(List<Message> messages, long threadId) {
