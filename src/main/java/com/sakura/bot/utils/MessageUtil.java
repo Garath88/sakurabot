@@ -39,20 +39,14 @@ public final class MessageUtil {
 
     public static void sendMessageToUser(User user, Message message) {
         user.openPrivateChannel()
-            .queue(pc -> {
-                if (GuildUtil.userIsInGuild(pc.getUser())) {
-                    MessageUtil.sendMessageToChannel(pc, message);
-                }
-            });
+            .queue(PrivateChannelWrapper.userIsInGuild(pc ->
+                MessageUtil.sendMessageToChannel(pc, message)));
     }
 
     public static void sendMessageToUser(User user, String message) {
         user.openPrivateChannel()
-            .queue(pc -> {
-                if (GuildUtil.userIsInGuild(pc.getUser())) {
-                    MessageUtil.sendMessageToChannel(pc, message);
-                }
-            });
+            .queue(PrivateChannelWrapper.userIsInGuild(pc ->
+                MessageUtil.sendMessageToChannel(pc, message)));
     }
 
     private static void sendMessageToChannel(MessageChannel channel, Message message) {

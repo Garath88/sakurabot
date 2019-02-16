@@ -37,12 +37,11 @@ public final class SortThreads {
         }
         if (temp > 0) {
             messageId = temp;
+            //TODO: Fix async error
             try {
-                MessageHistory history = thread.getHistoryAfter(messageId, 100)
-                    .complete();
-                Message latestMsg = thread.getMessageById(messageId)
-                    .complete();
-                sortAndDoInactivityTask(history, thread, latestMsg, amountOfThreads);
+                thread.getHistoryAfter(messageId, 100)
+                    .queue(history -> thread.getMessageById(messageId)
+                        .queue(latestMsg -> sortAndDoInactivityTask(history, thread, latestMsg, amountOfThreads)));
             } catch (Exception e) {
                 String errorMsg = String.format("Failed to get latest msg id for %s using msgId: %s",
                     thread.getName(), messageId);
@@ -96,7 +95,9 @@ public final class SortThreads {
             long threadId = thread.getIdLong();
             Integer postCount = ThreadDbTable.getPostCount(thread);
             postCount += countUniqueNewMessages(messages, threadId);
-            ThreadDbTable.storePostCount(postCount, threadId);
+            if (postCount > 0) {
+                ThreadDbTable.storePostCount(postCount, threadId);
+            }
         } catch (Exception e) {
             String errorMsg = String.format("Failed to count and store post count for %s",
                 thread.getName());

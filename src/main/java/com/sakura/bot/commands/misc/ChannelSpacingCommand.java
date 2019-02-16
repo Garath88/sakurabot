@@ -8,9 +8,11 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sakura.bot.Permissions;
 import com.sakura.bot.utils.ArgumentChecker;
+import com.sakura.bot.utils.GuildUtil;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.utils.PermissionUtil;
 
 public class ChannelSpacingCommand extends Command {
     public ChannelSpacingCommand() {
@@ -31,28 +33,43 @@ public class ChannelSpacingCommand extends Command {
             List<TextChannel> textChannels = event.getGuild()
                 .getTextChannels();
             if (arguments.equals("dash")) {
-                String spacedChannels = spaceOrDashChannels(textChannels, " ", "-");
-                event.reply(String.format("Dashed channels: %s", spacedChannels));
+                String dashedChannels = spaceOrDashChannels(event, textChannels, " ", "-");
+                if (!dashedChannels.isEmpty()) {
+                    event.reply(String.format("Dashed channels: %s", dashedChannels));
+                }
             } else if (arguments.equals("space")) {
-                String dashedChannels = spaceOrDashChannels(textChannels, "-", "` `");
-                event.reply(String.format("Spaced channels: %s", dashedChannels));
+                String spacedChannels = spaceOrDashChannels(event, textChannels, "-", "` `");
+                if (!spacedChannels.isEmpty()) {
+                    event.reply(String.format("Spaced channels: %s", spacedChannels));
+                }
             }
         } catch (IllegalArgumentException e) {
             event.replyWarning(e.getMessage());
         }
     }
 
-    private String spaceOrDashChannels(List<TextChannel> channels, String from, String to) {
-        List<String> channelNames = new ArrayList<>();
+    private String spaceOrDashChannels(CommandEvent event, List<TextChannel> channels, String from, String to) {
+        List<String> successChannelNames = new ArrayList<>();
+        List<String> failChannelNames = new ArrayList<>();
         channels.forEach(channel -> {
             if (channel.getName().contains(from)) {
-                channelNames.add(String.format("**%s**", channel.getName()));
-                String newName = String.join(to, channel.getName().split(from));
-                channel.getManager().setName(newName)
-                    .queue();
+                if (!PermissionUtil.checkPermission(channel, GuildUtil.getGuild(channel.getJDA()).getSelfMember(),
+                    Permission.MANAGE_CHANNEL)) {
+                    failChannelNames.add(String.format("%s", channel.getAsMention()));
+                } else {
+                    successChannelNames.add(String.format("**%s**", channel.getName()));
+                    String newName = String.join(to, channel.getName().split(from));
+                    channel.getManager().setName(newName)
+                        .queue();
+                }
             }
         });
-        return channelNames.stream()
+        if (!failChannelNames.isEmpty()) {
+            String failed = failChannelNames.stream()
+                .collect(Collectors.joining(","));
+            event.reply(String.format("Lacking permission to rename channel: %s", failed));
+        }
+        return successChannelNames.stream()
             .collect(Collectors.joining(", "));
     }
 }

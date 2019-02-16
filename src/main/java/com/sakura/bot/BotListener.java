@@ -62,7 +62,7 @@ public class BotListener implements EventListener {
             QuizQuestion.perform(event, waiter, client);
         } else if (event instanceof MessageReceivedEvent) {
             handleSortingOfThreads(event);
-            handleCopyMessage((MessageReceivedEvent)event);
+            handleMirrorChannel((MessageReceivedEvent)event);
         } else if (event instanceof MessageDeleteEvent) {
             handleSortingOfThreads(event);
         } else if (event instanceof GuildMemberLeaveEvent) {
@@ -92,7 +92,7 @@ public class BotListener implements EventListener {
         }
     }
 
-    private void handleCopyMessage(MessageReceivedEvent event) {
+    private void handleMirrorChannel(MessageReceivedEvent event) {
         if (!event.getChannelType().equals(ChannelType.PRIVATE)) {
             String fromChanID = event.getTextChannel().getId();
             Map<String, String> channelIDs = CopyMessageChannelStorage.getChannelIDs();

@@ -5,7 +5,9 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.impl.PrivateChannelImpl;
 import net.dv8tion.jda.core.entities.impl.ReceivedMessage;
 
@@ -30,7 +32,7 @@ public final class PrivateChannelWrapper {
                     MessageChannel chan = msg.getChannel();
                     if (chan instanceof PrivateChannelImpl) {
                         PrivateChannelImpl pc = (PrivateChannelImpl)chan;
-                        if (GuildUtil.userIsInGuild(pc.getUser())) {
+                        if (userIsInGuild(pc.getUser())) {
                             throwingConsumer.accept(ret);
                         }
                     }
@@ -41,5 +43,10 @@ public final class PrivateChannelWrapper {
                 LOGGER.warn("DM error: {}", e.getMessage());
             }
         };
+    }
+
+    private static boolean userIsInGuild(User user) {
+        Member member = GuildUtil.getGuild(user.getJDA()).getMemberById(user.getId());
+        return member != null;
     }
 }

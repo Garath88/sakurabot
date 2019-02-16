@@ -10,8 +10,8 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.configuration.Config;
-import com.sakura.bot.database.ThreadDbTable;
 import com.sakura.bot.database.ThreadDbInfo;
+import com.sakura.bot.database.ThreadDbTable;
 import com.sakura.bot.utils.ArgumentChecker;
 import com.sakura.bot.utils.CategoryUtil;
 
@@ -64,17 +64,21 @@ public class DeleteThreadCommand extends Command {
             validateInput(msgWithNumber, threadInfo.getThreadIds().size());
             TextChannel threadToDelete =
                 getThreadToDelete(event.getJDA(), msgWithNumber, threadInfo);
-            handleDeletionOfThread(threadToDelete);
-            String channelName = threadToDelete.getName();
-            event.reply(String.format("Successfully deleted thread: **%s**",
-                channelName));
+            if (!event.getChannel().getId().equals(threadToDelete.getId())) {
+                handleDeletionOfThread(threadToDelete);
+                String channelName = threadToDelete.getName();
+                event.reply(String.format("Successfully deleted thread: **%s**",
+                    channelName));
+            } else {
+                event.replyError("Cannot delete the channel you are already in!\n"
+                    + "Please retry this command in **#botspam**");
+            }
         } catch (IllegalArgumentException | IllegalStateException e) {
             event.replyWarning(e.getMessage() + "\n" +
                 String.format("%s Please try running the %s command again",
                     event.getMessage().getAuthor().getAsMention(),
                     Config.PREFIX + name));
         }
-
     }
 
     private void handleDeletionOfThread(TextChannel threadToDelete) {

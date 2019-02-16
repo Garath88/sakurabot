@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
+import com.jagrosh.jdautilities.command.impl.HelpInfo;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.configuration.CommandList;
 import com.sakura.bot.configuration.Config;
@@ -21,6 +22,12 @@ public class BotImpl implements Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(BotImpl.class);
     private CommandClientBuilder client = new CommandClientBuilder();
     private EventWaiter waiter = new EventWaiter();
+    private static final String HELP_TEXT =
+        "The **+thread** command allows users the freedom to make whatever channel they want "
+            + "as long as the rules are being followed.\n"
+            + "Threads will expire if they haven't been active in 48 hours and not positioned in the top half of the current threads list.\n"
+            + "```fix\nNote: Sakura does not automatically respond to pings or key words outside of commands.```\n";
+    private static final String IMAGE_URL = "https://i.postimg.cc/mZNnDbtp/sakurahelp.png";
 
     public BotImpl() {
         setupParameters();
@@ -38,6 +45,8 @@ public class BotImpl implements Bot {
 
         // sets the bot prefix
         client.setPrefix(Config.PREFIX);
+
+        client.setHelpInfo(new HelpInfo(HELP_TEXT, IMAGE_URL));
     }
 
     @Override
@@ -74,8 +83,7 @@ public class BotImpl implements Bot {
             .addEventListener(waiter)
             .addEventListener(bot)
             .addEventListener(new BotListener((CommandClientImpl)bot, waiter))
-            // start it up!
-            .buildAsync();
+            .build();
     }
 }
 
