@@ -13,6 +13,7 @@ import com.sakura.bot.commands.say.SakuraDMCommand;
 import com.sakura.bot.commands.say.SakuraReadDMHistory;
 import com.sakura.bot.commands.say.SakuraSayCommand;
 import com.sakura.bot.commands.say.SakuraSetChanCommand;
+import com.sakura.bot.commands.system.HelpCommand;
 import com.sakura.bot.commands.system.PingCommand;
 import com.sakura.bot.commands.system.RebootCommand;
 import com.sakura.bot.commands.system.ShutdownCommand;
@@ -44,6 +45,7 @@ public class CommandList {
         //
         //
 
+        commands.add(new HelpCommand());
         commands.add(new PingCommand());
         commands.add(new ShutdownCommand());
         commands.add(new RebootCommand());

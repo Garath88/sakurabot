@@ -29,7 +29,7 @@ import net.dv8tion.jda.core.events.Event;
 
 public class ThreadCommand extends Command {
     private static final Pattern SYMBOL_PATTERN = Pattern.compile("[^\\w -]");
-    private static final int MAX_AMOUNT_OF_THREADS = 12;
+    private static final int MAX_AMOUNT_OF_THREADS = 14;
     private static final int LURKER_MAX_THREAD_LIMIT = 1;
     private final EventWaiter waiter;
 

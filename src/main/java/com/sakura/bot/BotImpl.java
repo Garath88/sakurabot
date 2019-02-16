@@ -47,6 +47,7 @@ public class BotImpl implements Bot {
         client.setPrefix(Config.PREFIX);
 
         client.setHelpInfo(new HelpInfo(HELP_TEXT, IMAGE_URL));
+        client.useHelpBuilder(false);
     }
 
     @Override
