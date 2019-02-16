@@ -27,7 +27,7 @@ public final class MariaDbConnector {
     private MariaDbConnector() {
     }
 
-    static ResultSet executeSql(String sql) {
+    static synchronized ResultSet executeSql(String sql) {
         if (config != null) {
             try (Connection conn = DriverManager.getConnection(
                 config.getDbUrl(), config.getUser(), config.getPass());

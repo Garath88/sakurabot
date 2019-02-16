@@ -38,6 +38,7 @@ public final class ThreadDbTable {
 
     private static void executeQuery(String sql) {
         try {
+            LOGGER.debug(sql);
             ResultSet result = MariaDbConnector.executeSql(sql);
             if (result != null) {
                 result.close();
