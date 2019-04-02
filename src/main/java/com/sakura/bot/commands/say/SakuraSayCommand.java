@@ -13,11 +13,11 @@ import com.sakura.bot.configuration.Config;
 import com.sakura.bot.utils.EmojiUtil;
 import com.sakura.bot.utils.MentionUtil;
 import com.sakura.bot.utils.MessageUtil;
+import com.sakura.bot.utils.TextChannelUtil;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 
 public final class SakuraSayCommand extends Command {
@@ -57,27 +57,20 @@ public final class SakuraSayCommand extends Command {
     }
 
     private void say(CommandEvent event, String message) {
-        TextChannel textChannel = SakuraSayStorage.getChannel()
-            .orElseThrow(() -> new IllegalArgumentException("You haven't added a text channel to talk in! \n "
-                + "Please use the **" + Config.PREFIX + "sakura_set_chan** command"));
-        if (textChannelExists(textChannel, event.getJDA().getTextChannels())) {
-            List<Message.Attachment> attachments = event.getMessage().getAttachments();
-            if (StringUtils.isNotEmpty(message) || !attachments.isEmpty()) {
-                if (event.isFromType(ChannelType.PRIVATE)) {
-                    message = MentionUtil.addMentionsToMessage(event, message);
-                    message = EmojiUtil.addEmojisToMessage(event.getJDA(), message);
-                }
-                MessageUtil.sendAttachmentsToChannel(attachments, textChannel);
-                MessageUtil.sendMessageToChannel(message, textChannel, SakuraSayStorage.getUseDash());
-            } else {
-                event.reply(String.format("Currently talking in channel: **%s**",
-                    textChannel.getName()));
+        String channelId = SakuraSayStorage.getChannel().orElseThrow(() -> new IllegalArgumentException("You haven't added a text channel to talk in! \n "
+            + "Please use the **" + Config.PREFIX + "sakura_set_chan** command"));
+        TextChannel textChannel = TextChannelUtil.getChannel(channelId, event.getEvent());
+        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+        if (StringUtils.isNotEmpty(message) || !attachments.isEmpty()) {
+            if (event.isFromType(ChannelType.PRIVATE)) {
+                message = MentionUtil.addMentionsToMessage(event, message);
+                message = EmojiUtil.addEmojisToMessage(event.getJDA(), message);
             }
+            MessageUtil.sendAttachmentsToChannel(attachments, textChannel);
+            MessageUtil.sendMessageToChannel(message, textChannel, SakuraSayStorage.getUseDash());
+        } else {
+            event.reply(String.format("Currently talking in channel: **%s**",
+                textChannel.getName()));
         }
-    }
-
-    private boolean textChannelExists(MessageChannel textChannel, List<TextChannel> textChannels) {
-        return textChannels.stream()
-            .anyMatch(chan -> chan.getId().equals(textChannel.getId()));
     }
 }

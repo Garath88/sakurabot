@@ -26,7 +26,7 @@ public final class SakuraSetChanCommand extends Command {
             String args = event.getArgs();
             validateInput(args);
             TextChannel channel = TextChannelUtil.getChannel(args, event.getEvent());
-            SakuraSayStorage.setChannel(channel);
+            SakuraSayStorage.setChannel(channel.getId());
 
             event.reply(
                 String.format("Now talking in channel: **%s** ", channel.getName()));

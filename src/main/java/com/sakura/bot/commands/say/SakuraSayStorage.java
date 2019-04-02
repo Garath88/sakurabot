@@ -4,21 +4,19 @@ import java.util.Optional;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 
-import net.dv8tion.jda.core.entities.TextChannel;
-
 public final class SakuraSayStorage {
     private static boolean useDash = true;
-    private static TextChannel channel = null;
+    private static String id = null;
 
     private SakuraSayStorage() {
     }
 
-    public static Optional<TextChannel> getChannel() {
-        return Optional.ofNullable(channel);
+    public static Optional<String> getChannel() {
+        return Optional.ofNullable(id);
     }
 
-    static void setChannel(TextChannel channel) {
-        SakuraSayStorage.channel = channel;
+    static void setChannel(String id) {
+        SakuraSayStorage.id = id;
     }
 
     static void toggleUseDash(CommandEvent event) {

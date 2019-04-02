@@ -17,6 +17,13 @@ public final class ArgumentChecker {
         }
     }
 
+    public static void checkArgsBySpaceIsAtLeast(String arguments, int minimunRequiredArguments) {
+        if (getNumberOfArguments(arguments, SPLIT_BY_SPACE) < minimunRequiredArguments) {
+            throw new IllegalArgumentException(String.format(INVALID_ARGS_MSG,
+                minimunRequiredArguments));
+        }
+    }
+
     public static void checkArgsByPipe(String arguments, int requiredArguments) {
         if (getNumberOfArguments(arguments, SPIT_BY_PIPE) != requiredArguments) {
             throw new IllegalArgumentException(String.format(INVALID_ARGS_MSG,

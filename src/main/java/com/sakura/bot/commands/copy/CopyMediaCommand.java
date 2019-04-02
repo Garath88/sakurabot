@@ -23,11 +23,12 @@ public class CopyMediaCommand extends Command {
     private static final int MAX_HISTORY_LIMIT = 10;
     private TextChannel fromChannel;
     private TextChannel toChannel;
+    private static final int MINIMUM_ARGS = 3;
 
     public CopyMediaCommand() {
         this.name = "copy_media";
         this.help = "copies the attachements of one channel to another";
-        this.arguments = "<from chan id> <to chan id> <starting msg id>";
+        this.arguments = "<from chan id> <to chan id> <starting msg id> [end msg id]";
         this.ownerCommand = true;
         this.botPermissions = new Permission[] {
             Permission.MANAGE_CHANNEL
@@ -39,13 +40,14 @@ public class CopyMediaCommand extends Command {
         try {
             String[] items = event.getArgs().split("\\s");
             validateInput(items);
+            String lastId = items.length > MINIMUM_ARGS ? items[3] : "";
             fromChannel = TextChannelUtil.getChannel(items[0], event.getEvent());
             toChannel = TextChannelUtil.getChannel(items[1], event.getEvent());
             fromChannel.getMessageById(items[2]).queue(
                 firstMsg -> {
                     checkMessageForPatternMatch(firstMsg.getContentRaw(), toChannel);
                     MessageUtil.sendAttachmentsToChannel(firstMsg.getAttachments(), toChannel);
-                    postImages(items[2], MAX_HISTORY_LIMIT);
+                    postImages(items[2], MAX_HISTORY_LIMIT, lastId);
                 }, fail -> event.replyWarning("Could not find first message"));
 
         } catch (IllegalArgumentException e) {
@@ -54,14 +56,14 @@ public class CopyMediaCommand extends Command {
     }
 
     private void validateInput(String[] args) {
-        ArgumentChecker.checkArgsBySpace(Arrays.toString(args), 3);
+        ArgumentChecker.checkArgsBySpaceIsAtLeast(Arrays.toString(args), MINIMUM_ARGS);
         for (String item : args) {
             Preconditions.checkArgument(StringUtils.isNumeric(item),
                 String.format("Invalid id \"%s\", id must be numeric", item));
         }
     }
 
-    private void postImages(String msgId, int maxLimit) {
+    private void postImages(String msgId, int maxLimit, String endId) {
         fromChannel.getHistoryAfter(msgId, maxLimit).queue(
             history -> {
                 List<Message> messages = history.getRetrievedHistory();
@@ -70,8 +72,10 @@ public class CopyMediaCommand extends Command {
                     while (it.hasNext()) {
                         Message message = it.next();
                         sendMedia(message, toChannel);
-                        if (!it.hasNext()) {
-                            postImages(message.getId(), maxLimit);
+                        if (message.getId().equals(endId)) {
+                            break;
+                        } else if (!it.hasNext()) {
+                            postImages(message.getId(), maxLimit, endId);
                         }
                     }
                 }
