@@ -80,16 +80,19 @@ public final class SortThreads {
         try {
             thread.getHistoryAfter(latestMsg, MAX_HISTORY_LIMIT).queue(
                 history -> {
+                    long threadId = thread.getIdLong();
                     List<Message> messages = new ArrayList<>(history.getRetrievedHistory());
                     if (!messages.isEmpty()) {
                         messages.add(latestMsg);
-                        long threadId = thread.getIdLong();
                         int postCount = ThreadDbTable.getPostCount(thread);
-                        postCount += countUniqueNewMessages(messages, threadId);
+                        postCount += countUniqueNewMessages(messages);
                         if (postCount > 0) {
                             ThreadDbTable.storePostCount(postCount, threadId);
                         }
-                        countAndStorePostCount(messages.get(messages.size() - 2), thread);
+                        countAndStorePostCount(messages.get(0), thread);
+                    } else {
+                        ThreadDbTable.storeLatestMsgId(
+                            latestMsg.getIdLong(), threadId);
                     }
                 });
         } catch (Exception e) {
@@ -99,12 +102,10 @@ public final class SortThreads {
         }
     }
 
-    private static int countUniqueNewMessages(List<Message> messages, long threadId) {
+    private static int countUniqueNewMessages(List<Message> messages) {
         ListIterator<Message> iter = messages.listIterator();
         int postCount = 0;
         if (messages.size() > 1) {
-            ThreadDbTable.storeLatestMsgId(
-                messages.get(0).getIdLong(), threadId);
             postCount = countUniqueMessages(iter);
         }
         return postCount;
