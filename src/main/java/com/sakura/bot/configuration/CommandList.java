@@ -8,7 +8,6 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.commands.copy.CopyMediaCommand;
 import com.sakura.bot.commands.misc.ChannelSpacingCommand;
 import com.sakura.bot.commands.misc.MemberCommand;
-import com.sakura.bot.commands.misc.SpoilerCommand;
 import com.sakura.bot.commands.say.SakuraDMCommand;
 import com.sakura.bot.commands.say.SakuraReadDMHistory;
 import com.sakura.bot.commands.say.SakuraSayCommand;
@@ -51,7 +50,6 @@ public class CommandList {
         commands.add(new RebootCommand());
         commands.add(new ThreadCommand(waiter));
         commands.add(new DeleteThreadCommand(waiter));
-        commands.add(new SpoilerCommand());
         commands.add(new SakuraSetChanCommand());
         commands.add(new SakuraSayCommand());
         commands.add(new SakuraDMCommand());

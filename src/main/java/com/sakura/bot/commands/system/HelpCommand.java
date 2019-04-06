@@ -21,7 +21,7 @@ public class HelpCommand extends Command {
         if (!RoleUtil.getMemberRoles(event).contains(quiz)) {
             event.getClient().displayHelp(event);
         } else {
-            event.reply("Tee hee~ nice try, but I've already told you where you can find the answer!");
+            event.reply("- Tee hee~ nice try, but I've already told you where you can find the answer!");
         }
     }
 }
