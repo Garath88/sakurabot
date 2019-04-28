@@ -8,15 +8,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.sakura.bot.commands.copy.CopyMediaCommand;
-import com.sakura.bot.commands.copy.CopyMessageChannelStorage;
-import com.sakura.bot.commands.thread.InactiveThreadChecker;
-import com.sakura.bot.commands.thread.SortThreads;
-import com.sakura.bot.database.ThreadDbTable;
-import com.sakura.bot.quiz.QuizQuestion;
-import com.sakura.bot.utils.CategoryUtil;
-import com.sakura.bot.utils.EmojiUtil;
+import commands.quiz.QuizQuestion;
 
+import commands.copy.CopyMediaCommand;
+import commands.copy.CopyMessageChannelStorage;
+import commands.thread.InactiveThreadChecker;
+import commands.thread.SortThreads;
+import database.ThreadDbTable;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -30,6 +28,8 @@ import net.dv8tion.jda.core.events.message.GenericMessageEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
+import utils.CategoryUtil;
+import utils.EmojiUtil;
 
 public class BotListener implements EventListener {
     private static final String SUCCESS_EMOJI = "sakura";

@@ -5,22 +5,23 @@ import java.util.List;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.sakura.bot.commands.copy.CopyMediaCommand;
-import com.sakura.bot.commands.misc.ChannelSpacingCommand;
-import com.sakura.bot.commands.misc.MemberCommand;
-import com.sakura.bot.commands.say.SakuraDMCommand;
-import com.sakura.bot.commands.say.SakuraReadDMHistory;
-import com.sakura.bot.commands.say.SakuraSayCommand;
-import com.sakura.bot.commands.say.SakuraSetChanCommand;
-import com.sakura.bot.commands.system.HelpCommand;
-import com.sakura.bot.commands.system.PingCommand;
-import com.sakura.bot.commands.system.RebootCommand;
-import com.sakura.bot.commands.system.ShutdownCommand;
-import com.sakura.bot.commands.thread.DeleteThreadCommand;
-import com.sakura.bot.commands.thread.ThreadCommand;
+import com.sakura.bot.RebootCommand;
+
+import commands.copy.CopyMediaCommand;
+import commands.misc.ChannelSpacingCommand;
+import commands.quiz.MemberCommand;
+import commands.say.DMCommand;
+import commands.say.ReadDMHistory;
+import commands.say.SayCommand;
+import commands.say.SetChanCommand;
+import commands.system.HelpCommand;
+import commands.system.PingCommand;
+import commands.system.ShutdownCommand;
+import commands.thread.DeleteThreadCommand;
+import commands.thread.ThreadCommand;
 
 public class CommandList {
-
+    private static final String BOT_NAME = "Sakura";
     private List<Command> commands = new ArrayList<>();
 
     public CommandList(EventWaiter waiter) {
@@ -50,10 +51,10 @@ public class CommandList {
         commands.add(new RebootCommand());
         commands.add(new ThreadCommand(waiter));
         commands.add(new DeleteThreadCommand(waiter));
-        commands.add(new SakuraSetChanCommand());
-        commands.add(new SakuraSayCommand());
-        commands.add(new SakuraDMCommand());
-        commands.add(new SakuraReadDMHistory());
+        commands.add(new SetChanCommand(BOT_NAME));
+        commands.add(new SayCommand(BOT_NAME));
+        commands.add(new DMCommand(BOT_NAME));
+        commands.add(new ReadDMHistory(BOT_NAME));
         commands.add(new ChannelSpacingCommand());
         commands.add(new MemberCommand(waiter));
         commands.add(new CopyMediaCommand());

@@ -1,4 +1,4 @@
-package com.sakura.bot.commands.system;
+package com.sakura.bot;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,7 +6,8 @@ import org.slf4j.LoggerFactory;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sakura.Main;
-import com.sakura.bot.Permissions;
+
+import commands.Permissions;
 
 public class RebootCommand extends Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(RebootCommand.class);

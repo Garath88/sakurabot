@@ -8,7 +8,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sakura.bot.utils.TxtReader;
+import utils.TxtReader;
 
 public final class Config {
     private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
