@@ -6,7 +6,9 @@ import java.util.List;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.RebootCommand;
+import com.sakura.bot.commands.WaifuRoles;
 
+import commands.RemoveRoleCommand;
 import commands.copy.CopyMediaCommand;
 import commands.misc.ChannelSpacingCommand;
 import commands.quiz.MemberCommand;
@@ -19,6 +21,7 @@ import commands.system.PingCommand;
 import commands.system.ShutdownCommand;
 import commands.thread.DeleteThreadCommand;
 import commands.thread.ThreadCommand;
+import commands.waifu.WaifuCommand;
 
 public class CommandList {
     private static final String BOT_NAME = "Sakura";
@@ -58,6 +61,8 @@ public class CommandList {
         commands.add(new ChannelSpacingCommand());
         commands.add(new MemberCommand(waiter));
         commands.add(new CopyMediaCommand());
+        commands.add(new WaifuCommand(new WaifuRoles(), waiter));
+        commands.add(new RemoveRoleCommand());
     }
 
     public List<Command> getCommands() {
