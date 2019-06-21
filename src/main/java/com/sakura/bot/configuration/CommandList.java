@@ -8,9 +8,8 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.RebootCommand;
 import com.sakura.bot.commands.WaifuRoles;
 
-import commands.RemoveRoleCommand;
+import commands.QuoteCommand;
 import commands.copy.CopyMediaCommand;
-import commands.emoji.BanEmojiCommand;
 import commands.misc.ChannelSpacingCommand;
 import commands.quiz.MemberCommand;
 import commands.say.DMCommand;
@@ -63,8 +62,7 @@ public class CommandList {
         commands.add(new MemberCommand(waiter));
         commands.add(new CopyMediaCommand());
         commands.add(new WaifuCommand(new WaifuRoles(), waiter));
-        commands.add(new RemoveRoleCommand());
-        commands.add(new BanEmojiCommand());
+        commands.add(new QuoteCommand());
     }
 
     public List<Command> getCommands() {
