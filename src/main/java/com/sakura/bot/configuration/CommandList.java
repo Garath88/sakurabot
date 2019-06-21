@@ -10,6 +10,7 @@ import com.sakura.bot.commands.WaifuRoles;
 
 import commands.RemoveRoleCommand;
 import commands.copy.CopyMediaCommand;
+import commands.emoji.BanEmojiCommand;
 import commands.misc.ChannelSpacingCommand;
 import commands.quiz.MemberCommand;
 import commands.say.DMCommand;
@@ -63,6 +64,7 @@ public class CommandList {
         commands.add(new CopyMediaCommand());
         commands.add(new WaifuCommand(new WaifuRoles(), waiter));
         commands.add(new RemoveRoleCommand());
+        commands.add(new BanEmojiCommand());
     }
 
     public List<Command> getCommands() {
