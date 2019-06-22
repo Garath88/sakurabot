@@ -6,15 +6,16 @@ import java.util.List;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.RebootCommand;
-import com.sakura.bot.commands.WaifuRoles;
 
 import commands.QuoteCommand;
 import commands.copy.CopyMediaCommand;
 import commands.misc.ChannelSpacingCommand;
 import commands.quiz.MemberCommand;
 import commands.say.DMCommand;
-import commands.say.ReadDMHistory;
+import commands.say.ReadDMHistoryCommand;
 import commands.say.SayCommand;
+import commands.say.SayEditCommand;
+import commands.say.SayEditLastCommand;
 import commands.say.SetChanCommand;
 import commands.system.HelpCommand;
 import commands.system.PingCommand;
@@ -56,12 +57,14 @@ public class CommandList {
         commands.add(new DeleteThreadCommand(waiter));
         commands.add(new SetChanCommand(BOT_NAME));
         commands.add(new SayCommand(BOT_NAME));
+        commands.add(new SayEditCommand(BOT_NAME));
+        commands.add(new SayEditLastCommand(BOT_NAME));
         commands.add(new DMCommand(BOT_NAME));
-        commands.add(new ReadDMHistory(BOT_NAME));
+        commands.add(new ReadDMHistoryCommand(BOT_NAME));
         commands.add(new ChannelSpacingCommand());
         commands.add(new MemberCommand(waiter));
         commands.add(new CopyMediaCommand());
-        commands.add(new WaifuCommand(new WaifuRoles(), waiter));
+        commands.add(new WaifuCommand(waiter));
         commands.add(new QuoteCommand());
     }
 

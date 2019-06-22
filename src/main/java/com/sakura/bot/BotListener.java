@@ -11,15 +11,12 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 
 import commands.copy.CopyMediaCommand;
 import commands.copy.CopyMessageChannelStorage;
-import commands.emoji.BanEmojiCommand;
 import commands.quiz.QuizQuestion;
 import commands.thread.InactiveThreadChecker;
 import commands.thread.SortThreads;
 import database.ThreadDbTable;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.Event;
@@ -30,7 +27,6 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.message.GenericMessageEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import utils.CategoryUtil;
 import utils.EmojiUtil;
@@ -68,26 +64,12 @@ public class BotListener implements EventListener {
             MessageReceivedEvent messageRecievedEvent = (MessageReceivedEvent)event;
             handleSortingOfThreads(event);
             handleMirrorChannel(messageRecievedEvent);
-            handleUser(messageRecievedEvent.getAuthor(), messageRecievedEvent);
         } else if (event instanceof MessageDeleteEvent) {
             handleSortingOfThreads(event);
-        } else if (event instanceof MessageReactionAddEvent) {
-            MessageReactionAddEvent messageReactionAddEvent = (MessageReactionAddEvent)event;
-            handleUser(messageReactionAddEvent.getUser(), messageReactionAddEvent.getReaction());
         } else if (event instanceof GuildMemberLeaveEvent) {
             User user = ((GuildMemberLeaveEvent)event).getUser();
             waiter.removeWaitingTask(user);
         }
-    }
-
-    private void handleUser(User author, MessageReceivedEvent messageRecievedEvent) {
-        Message message = messageRecievedEvent.getMessage();
-        String userId = author.getId();
-        BanEmojiCommand.deleteMessageWithBlacklistedEmojis(userId, message);
-    }
-
-    private void handleUser(User author, MessageReaction messageReaction) {
-        BanEmojiCommand.deleteReactionWithBlacklistedEmojis(author, messageReaction);
     }
 
     private void setCustomEmojis(JDA jda) {
