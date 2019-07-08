@@ -12,6 +12,7 @@ import commands.copy.CopyMediaCommand;
 import commands.misc.ChannelSpacingCommand;
 import commands.quiz.MemberCommand;
 import commands.say.DMCommand;
+import commands.say.DMDeleteCommand;
 import commands.say.ReadDMHistoryCommand;
 import commands.say.SayCommand;
 import commands.say.SayEditCommand;
@@ -60,6 +61,7 @@ public class CommandList {
         commands.add(new SayEditCommand(BOT_NAME));
         commands.add(new SayEditLastCommand(BOT_NAME));
         commands.add(new DMCommand(BOT_NAME));
+        commands.add(new DMDeleteCommand(BOT_NAME));
         commands.add(new ReadDMHistoryCommand(BOT_NAME));
         commands.add(new ChannelSpacingCommand());
         commands.add(new MemberCommand(waiter));
