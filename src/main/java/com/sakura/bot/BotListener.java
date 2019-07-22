@@ -8,13 +8,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import commands.thread.database.ThreadDbTable;
 
 import commands.copy.CopyMediaCommand;
 import commands.copy.CopyMessageChannelStorage;
 import commands.quiz.QuizQuestion;
 import commands.thread.InactiveThreadChecker;
 import commands.thread.SortThreads;
-import database.ThreadDbTable;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -68,7 +68,7 @@ public class BotListener implements EventListener {
             handleSortingOfThreads(event);
         } else if (event instanceof GuildMemberLeaveEvent) {
             User user = ((GuildMemberLeaveEvent)event).getUser();
-            waiter.removeWaitingTask(user);
+            waiter.removeAllWaitingTasksForUser(user);
         }
     }
 

@@ -9,9 +9,10 @@ import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
 import com.jagrosh.jdautilities.command.impl.HelpInfo;
+import com.jagrosh.jdautilities.commons.ConfigLoader;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.configuration.CommandList;
-import com.sakura.bot.configuration.Config;
+import com.typesafe.config.Config;
 
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDABuilder;
@@ -28,6 +29,7 @@ public class BotImpl implements Bot {
             + "Threads will expire if they haven't been active in 48 hours and not positioned in the top half of the current threads list.\n"
             + "```fix\nNote: Sakura does not automatically respond to pings or key words outside of commands.```\n";
     private static final String IMAGE_URL = "https://i.postimg.cc/mZNnDbtp/sakurahelp.png";
+    private static final Config CONFIG = ConfigLoader.getConfig();
 
     public BotImpl() {
         setupParameters();
@@ -38,16 +40,17 @@ public class BotImpl implements Bot {
         client.useDefaultGame();
 
         // sets the owner of the bot
-        client.setOwnerId(Config.getOwnerId());
+        client.setOwnerId(CONFIG.getString("ownerId"));
 
         // sets emojis used throughout the bot on successes, warnings, and failures
         client.setEmojis("\uD83D\uDE03", "\uD83D\uDE2E", "\uD83D\uDE26");
 
         // sets the bot prefix
-        client.setPrefix(Config.PREFIX);
+        client.setPrefix("+");
 
         client.setHelpInfo(new HelpInfo(HELP_TEXT, IMAGE_URL));
         client.useHelpBuilder(false);
+        client.setWaiter(waiter);
     }
 
     @Override
@@ -74,15 +77,15 @@ public class BotImpl implements Bot {
         CommandClient bot = client.build();
         new JDABuilder(AccountType.BOT)
             // set the token
-            .setToken(Config.getToken())
+            .setToken(CONFIG.getString("token"))
 
             // set the game for when the bot is loading
             .setStatus(OnlineStatus.DO_NOT_DISTURB)
             .setGame(Game.playing("loading..."))
 
             // add the listeners
-            .addEventListener(waiter)
             .addEventListener(bot)
+            .addEventListener(waiter)
             .addEventListener(new BotListener((CommandClientImpl)bot, waiter))
             .build();
     }
