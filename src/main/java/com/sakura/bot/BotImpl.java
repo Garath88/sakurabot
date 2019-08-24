@@ -21,8 +21,6 @@ import net.dv8tion.jda.core.entities.Game;
 
 public class BotImpl implements Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(BotImpl.class);
-    private CommandClientBuilder client = new CommandClientBuilder();
-    private EventWaiter waiter = new EventWaiter();
     private static final String HELP_TEXT =
         "The **+thread** command allows users the freedom to make whatever channel they want "
             + "as long as the rules are being followed.\n"
@@ -30,6 +28,8 @@ public class BotImpl implements Bot {
             + "```fix\nNote: Sakura does not automatically respond to pings or key words outside of commands.```\n";
     private static final String IMAGE_URL = "https://i.postimg.cc/mZNnDbtp/sakurahelp.png";
     private static final Config CONFIG = ConfigLoader.getConfig();
+    private CommandClientBuilder client = new CommandClientBuilder();
+    private EventWaiter waiter = new EventWaiter();
 
     public BotImpl() {
         setupParameters();
