@@ -8,13 +8,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import commands.thread.database.ThreadDbTable;
 
 import commands.copy.CopyMediaCommand;
 import commands.copy.CopyMessageChannelStorage;
 import commands.quiz.QuizQuestion;
 import commands.thread.InactiveThreadChecker;
 import commands.thread.SortThreads;
+import commands.thread.database.ThreadDbTable;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -30,6 +30,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import utils.CategoryUtil;
 import utils.EmojiUtil;
+import utils.MessageUtil;
 
 public class BotListener implements EventListener {
     private static final String SUCCESS_EMOJI = "sakura";
@@ -52,7 +53,7 @@ public class BotListener implements EventListener {
             allThreads.forEach(thread ->
                 SortThreads.countUniquePostsAndSort(thread, allThreads.size()));
             //Do this last else deleted channels might try to be sorted
-            InactiveThreadChecker.startOrCancelInactivityTaskIfNotTopX(jda);
+            InactiveThreadChecker.startOrCancelInactivityTaskIfNotTopX(allThreads);
         } else if (event instanceof TextChannelDeleteEvent) {
             TextChannelDeleteEvent deletedChannelEvent = (TextChannelDeleteEvent)event;
             TextChannel deletedChannel = deletedChannelEvent.getChannel();
@@ -64,6 +65,9 @@ public class BotListener implements EventListener {
             MessageReceivedEvent messageRecievedEvent = (MessageReceivedEvent)event;
             handleSortingOfThreads(event);
             handleMirrorChannel(messageRecievedEvent);
+            if (messageRecievedEvent.isFromType(ChannelType.PRIVATE)) {
+                handlePrivateMessage(messageRecievedEvent);
+            }
         } else if (event instanceof MessageDeleteEvent) {
             handleSortingOfThreads(event);
         } else if (event instanceof GuildMemberLeaveEvent) {
@@ -76,6 +80,12 @@ public class BotListener implements EventListener {
         String successEmoji = EmojiUtil.getCustomEmoji(jda, SUCCESS_EMOJI);
         if (StringUtils.isNotEmpty(successEmoji)) {
             client.setSuccess(successEmoji);
+        }
+    }
+
+    private void handlePrivateMessage(MessageReceivedEvent event) {
+        if (event.getMessage().getContentRaw().toLowerCase().contains("thank")) {
+            MessageUtil.sendMessageToUser(event.getAuthor(), "- You are welcome!");
         }
     }
 

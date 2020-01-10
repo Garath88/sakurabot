@@ -21,6 +21,7 @@ import commands.say.SetChanCommand;
 import commands.system.HelpCommand;
 import commands.system.PingCommand;
 import commands.system.ShutdownCommand;
+import commands.thread.DebugThreadsCommand;
 import commands.thread.DeleteThreadCommand;
 import commands.thread.ThreadCommand;
 import commands.waifu.WaifuCommand;
@@ -68,6 +69,7 @@ public class CommandList {
         commands.add(new CopyMediaCommand());
         commands.add(new WaifuCommand(waiter));
         commands.add(new QuoteCommand());
+        commands.add(new DebugThreadsCommand());
     }
 
     public List<Command> getCommands() {
