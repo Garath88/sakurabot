@@ -85,7 +85,7 @@ public class BotListener implements EventListener {
 
     private void handlePrivateMessage(MessageReceivedEvent event) {
         if (event.getMessage().getContentRaw().toLowerCase().contains("thank")) {
-            MessageUtil.sendMessageToUser(event.getAuthor(), "- You are welcome!");
+            MessageUtil.sendMessageToUser(event.getAuthor(), "- You are welcome!", 1000);
         }
     }
 
