@@ -14,10 +14,11 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.configuration.CommandList;
 import com.typesafe.config.Config;
 
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 
 public class BotImpl implements Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(BotImpl.class);
@@ -75,18 +76,16 @@ public class BotImpl implements Bot {
 
     private void init() throws LoginException {
         CommandClient bot = client.build();
-        new JDABuilder(AccountType.BOT)
-            // set the token
-            .setToken(CONFIG.getString("token"))
-
+        // set the token
+        JDABuilder.create(CONFIG.getString("token"), GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS))
+            .setMemberCachePolicy(MemberCachePolicy.ALL)
             // set the game for when the bot is loading
             .setStatus(OnlineStatus.DO_NOT_DISTURB)
-            .setGame(Game.playing("loading..."))
-
+            .setActivity(Activity.playing("loading..."))
             // add the listeners
-            .addEventListener(bot)
-            .addEventListener(waiter)
-            .addEventListener(new BotListener((CommandClientImpl)bot, waiter))
+            .addEventListeners(bot)
+            .addEventListeners(waiter)
+            .addEventListeners(new BotListener((CommandClientImpl)bot, waiter))
             .build();
     }
 }

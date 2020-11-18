@@ -15,19 +15,19 @@ import commands.quiz.QuizQuestion;
 import commands.thread.InactiveThreadChecker;
 import commands.thread.SortThreads;
 import commands.thread.database.ThreadDbTable;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.events.ReadyEvent;
-import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
-import net.dv8tion.jda.core.events.message.GenericMessageEvent;
-import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.message.GenericMessageEvent;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 import utils.CategoryUtil;
 import utils.EmojiUtil;
 import utils.MessageUtil;
@@ -43,7 +43,7 @@ public class BotListener implements EventListener {
     }
 
     @Override
-    public void onEvent(Event event) {
+    public void onEvent(GenericEvent event) {
         JDA jda = event.getJDA();
         if (event instanceof ReadyEvent) {
             List<TextChannel> allThreads = CategoryUtil.getThreadCategory(jda)
@@ -70,8 +70,8 @@ public class BotListener implements EventListener {
             }
         } else if (event instanceof MessageDeleteEvent) {
             handleSortingOfThreads(event);
-        } else if (event instanceof GuildMemberLeaveEvent) {
-            User user = ((GuildMemberLeaveEvent)event).getUser();
+        } else if (event instanceof GuildMemberRemoveEvent) {
+            User user = ((GuildMemberRemoveEvent)event).getUser();
             waiter.removeAllWaitingTasksForUser(user);
         }
     }
@@ -89,9 +89,11 @@ public class BotListener implements EventListener {
         }
     }
 
-    private void handleSortingOfThreads(Event event) {
-        TextChannel textChan = ((GenericMessageEvent)event).getTextChannel();
-        SortThreads.handleSortingOfThreads(event, textChan);
+    private void handleSortingOfThreads(GenericEvent event) {
+        if (((GenericMessageEvent)event).getChannelType() == ChannelType.TEXT) {
+            TextChannel textChan = ((GenericMessageEvent)event).getTextChannel();
+            SortThreads.handleSortingOfThreads(event, textChan);
+        }
     }
 
     private void handleMirrorChannel(MessageReceivedEvent event) {
