@@ -8,6 +8,11 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.sakura.bot.RebootCommand;
 
 import commands.QuoteCommand;
+import commands.channel.rp.RpCreateCommand;
+import commands.channel.rp.RpDeleteCommand;
+import commands.channel.thread.DebugThreadsCommand;
+import commands.channel.thread.DeleteThreadCommand;
+import commands.channel.thread.ThreadCommand;
 import commands.copy.CopyMediaCommand;
 import commands.misc.ChannelSpacingCommand;
 import commands.quiz.MemberCommand;
@@ -21,9 +26,6 @@ import commands.say.SetChanCommand;
 import commands.system.HelpCommand;
 import commands.system.PingCommand;
 import commands.system.ShutdownCommand;
-import commands.thread.DebugThreadsCommand;
-import commands.thread.DeleteThreadCommand;
-import commands.thread.ThreadCommand;
 import commands.waifu.WaifuCommand;
 
 public class CommandList {
@@ -56,7 +58,9 @@ public class CommandList {
         commands.add(new ShutdownCommand());
         commands.add(new RebootCommand());
         commands.add(new ThreadCommand(waiter));
+        commands.add(new RpCreateCommand(waiter));
         commands.add(new DeleteThreadCommand(waiter));
+        commands.add(new RpDeleteCommand());
         commands.add(new SetChanCommand(BOT_NAME));
         commands.add(new SayCommand(BOT_NAME));
         commands.add(new SayEditCommand(BOT_NAME));

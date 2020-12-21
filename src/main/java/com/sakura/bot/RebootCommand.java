@@ -14,7 +14,7 @@ public class RebootCommand extends Command {
 
     public RebootCommand() {
         this.name = "reboot";
-        this.help = "restarts the bot.";
+        this.help = "Restarts the bot.";
         this.guildOnly = false;
         this.requiredRoles = Permissions.MODERATOR.getValues();
     }
