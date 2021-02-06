@@ -130,7 +130,7 @@ public class BotListener implements EventListener {
             if (roles.contains("Moonrunes")) {
                 message += "- You now have access to the <#784165489739825252> channel.";
             } else if (roles.contains("Roleplayer")) {
-                message += "- You now have access to the <#554806001619173377> channel.";
+                message += "- You now have access to the <#554806001619173377> channel as well as other RP channels.";
             } else if (roles.contains("Archive")) {
                 message += "- You now have access to the **Public Archive** "
                     + "which is located at the bottom of the channel list";
